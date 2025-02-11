@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "INS-.######",
+ "creation": "2025-02-05 13:42:17.162748",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "data",
+  "coach",
+  "type_event",
+  "shake",
+  "aloe",
+  "tea",
+  "pdm",
+  "route",
+  "is_published"
+ ],
+ "fields": [
+  {
+   "fieldname": "data",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shake",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Shake"
+  },
+  {
+   "fieldname": "aloe",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Aloe"
+  },
+  {
+   "fieldname": "pdm",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "PDM"
+  },
+  {
+   "fieldname": "coach",
+   "fieldtype": "Link",
+   "label": "Coach",
+   "options": "Coach",
+   "reqd": 1
+  },
+  {
+   "fieldname": "type_event",
+   "fieldtype": "Link",
+   "label": "Type Event",
+   "options": "Club Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tea",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Tea"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "label": "Route"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_published",
+   "fieldtype": "Check",
+   "label": "Is published?"
+  }
+ ],
+ "has_web_view": 1,
+ "index_web_pages_for_search": 1,
+ "is_published_field": "is_published",
+ "links": [],
+ "modified": "2025-02-08 14:31:22.755005",
+ "modified_by": "Administrator",
+ "module": "Club360",
+ "name": "Stock Entry",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

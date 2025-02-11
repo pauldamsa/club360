@@ -1,0 +1,58 @@
+<div class="member-row py-3 border-bottom">
+    <div class="row align-items-center">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center">
+                <div>
+                    <div class="fw-bold">{{ doc.full_name }}</div>
+                    <div class="text-muted small">
+                        Coach: {{ frappe.db.get_value('Coach', doc.coach, 'full_name') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <span class="badge {% if doc.status == 'Activ' %}bg-success{% else %}bg-danger{% endif %}">
+                {{ doc.status }}
+            </span>
+        </div>
+        <div class="col-md-4">
+            {%- set today = frappe.utils.today() -%}
+            {%- set active_membership = [] -%}
+            {%- for membership in doc.memberships -%}
+                {%- if frappe.utils.getdate(membership.end_date) >= frappe.utils.getdate(today) and not active_membership -%}
+                    {{- active_membership.append(membership) -}}
+                {%- endif -%}
+            {%- endfor -%}
+            
+            {% if active_membership %}
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <div class="text-muted small">Valid until</div>
+                    <div>{{ frappe.format_date(active_membership[0].end_date) }}</div>
+                </div>
+                <div>
+                    <div class="text-muted small">Remaining</div>
+                    <span class="badge bg-primary">{{ active_membership[0].remaining_visits }} visits</span>
+                </div>
+            </div>
+            {% else %}
+            <span class="text-danger small">No active membership</span>
+            {% endif %}
+        </div>
+        <div class="col-md-2 text-end">
+            <a href="/{{ doc.route }}" class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-eye me-1"></i>View
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.member-row:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+.badge {
+    padding: 0.4em 0.8em;
+}
+</style>
+<!-- this is a sample default list template -->
