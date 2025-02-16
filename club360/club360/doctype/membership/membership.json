@@ -30,8 +30,7 @@
    "fieldname": "remaining_visits",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Remaining Visits",
-   "read_only": 1
+   "label": "Remaining Visits"
   },
   {
    "fieldname": "start_date",
@@ -43,7 +42,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-09 13:00:13.270196",
+ "modified": "2025-02-16 20:10:03.006575",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Membership",

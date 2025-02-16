@@ -25,7 +25,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Activ\nInactiv"
+   "options": "Active\nInactive"
   },
   {
    "fieldname": "column_break_tjbr",
@@ -96,7 +96,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-09 12:04:43.686003",
+ "modified": "2025-02-16 19:18:30.731799",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Club Member",
