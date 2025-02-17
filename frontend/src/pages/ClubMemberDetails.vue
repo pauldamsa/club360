@@ -8,9 +8,12 @@
                     <h1 class="text-2xl font-bold text-gray-900">{{ clubMemberDoc.full_name }}</h1>
                 </div>
             </div>
-            <div class = "flex items-center space-x-4">
-                <Button variant="solid" label="Edit Member" />
-                <Button variant="solid" label="Add Membership" />
+            <div class="flex items-center space-x-4">
+                <Button 
+                    variant="solid" 
+                    label="Edit Member" 
+                    @click="handleEditMember"
+                />
             </div>
         </div>
 
@@ -42,51 +45,113 @@
 
             <!-- Memberships Card -->
             <Card class="lg:col-span-2">
-                <template #header>
-                    <div class="flex justify-between items-center">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-200 pb-4">
                         <h2 class="text-lg font-medium">Memberships</h2>
-                        <Button variant="outline" label="Add Membership" />
+                        <div class="flex space-x-2">
+                            <Button 
+                                variant="outline" 
+                                label="Edit"
+                                icon="edit-2"
+                                @click="isEditing = !isEditing"
+                            />
+                            <Button 
+                                variant="solid" 
+                                label="Add New"
+                                icon="plus"
+                                @click="handleAddMembership"
+                            />
+                        </div>
                     </div>
-                </template>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remaining Visits</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="membership in membershipsList" :key="membership.name" class="hover:bg-gray-50">
-                                <td class="px-4 py-3">
-                                    {{ membership.type }}
-                                </td>
-                                <td class="px-4 py-3">{{ formatDate(membership.start_date) }}</td>
-                                <td class="px-4 py-3">{{ formatDate(membership.end_date) }}</td>
-                                <td class="px-4 py-3">
-                                    <Badge :label="membership.remaining_visits" variant="solid" 
-                                        :class="{
-                                            'bg-green-100 text-green-800': membership.remaining_visits > 5,
-                                            'bg-yellow-100 text-yellow-800': membership.remaining_visits <= 5 && membership.remaining_visits > 0,
-                                            'bg-red-100 text-red-800': membership.remaining_visits === 0
-                                        }"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remaining Visits</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="(membership, index) in editableMemberships" 
+                                    :key="index" 
+                                    class="hover:bg-gray-50"
+                                >
+                                    <td class="px-4 py-3">
+                                        <div v-if="isEditing">
+                                            <Select
+                                                v-model="editableMemberships[index].type"
+                                                :options="membershipTypes"
+                                            />
+                                        </div>
+                                        <span v-else>{{ membership.type }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div v-if="isEditing">
+                                            <Input type="date" v-model="editableMemberships[index].start_date" />
+                                        </div>
+                                        <span v-else>{{ formatDate(membership.start_date) }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div v-if="isEditing">
+                                            <Input type="date" v-model="editableMemberships[index].end_date" />
+                                        </div>
+                                        <span v-else>{{ formatDate(membership.end_date) }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div v-if="isEditing">
+                                            <Input type="number" v-model="editableMemberships[index].remaining_visits" />
+                                        </div>
+                                        <Badge v-else 
+                                            :label="membership.remaining_visits" 
+                                            variant="solid" 
+                                            :class="{
+                                                'bg-green-100 text-green-800': membership.remaining_visits > 5,
+                                                'bg-yellow-100 text-yellow-800': membership.remaining_visits <= 5 && membership.remaining_visits > 0,
+                                                'bg-red-100 text-red-800': membership.remaining_visits === 0
+                                            }"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div v-if="isEditing" class="flex justify-end space-x-2 pt-4 border-t">
+                        <Button 
+                            variant="outline" 
+                            label="Cancel" 
+                            @click="cancelEdit"
+                        />
+                        <Button 
+                            variant="solid" 
+                            label="Save Changes"
+                            @click="saveMembershipChanges"
+                        />
+                    </div>
                 </div>
             </Card>
         </div>
     </div>
+    <EditMemberDialog ref="editMemberDialog" />
 </template>
 
 <script setup>
-import { createDocumentResource, Card, Badge, Avatar, Button } from 'frappe-ui';
+import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select } from 'frappe-ui';
+import EditMemberDialog from '@/components/EditMemberDialog.vue';
 import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+
+const isEditing = ref(false);
+const editableMemberships = ref([]);
+
+const membershipTypes = [
+    { label: 'Monthly', value: 'Monthly' },
+    { label: 'Yearly', value: 'Yearly' },
+    { label: 'Pay Per Visit', value: 'Pay Per Visit' }
+];
 
 const route = useRoute();
 
@@ -111,7 +176,34 @@ const clubMemberDoc = computed(() => {
     return {};
 });
 
+watch(() => membershipsList.value, (newMemberships) => {
+    editableMemberships.value = JSON.parse(JSON.stringify(newMemberships || []));
+}, { immediate: true });
+
 function formatDate(date) {
     return new Date(date).toLocaleDateString();
+}
+
+function saveMembershipChanges() {
+    clubMemberResource.setValue('memberships', editableMemberships.value);
+    clubMemberResource.save().then(() => {
+        isEditing.value = false;
+        clubMemberResource.reload();
+    });
+}
+
+function handleAddMembership() {
+    console.log('Adding new membership');
+}
+
+function cancelEdit() {
+    isEditing.value = false;
+    editableMemberships.value = JSON.parse(JSON.stringify(membershipsList.value));
+}
+
+const editMemberDialog = ref(null);
+
+function handleEditMember() {
+    editMemberDialog.value?.openDialog(clubMemberDoc.value);
 }
 </script>

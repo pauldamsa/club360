@@ -5,14 +5,17 @@
                 <!-- Left side - Logo -->
                 <div class="flex items-center">
                     <router-link to="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">
-                        Club 360
+                         
                     </router-link>
                 </div>
 
                 <!-- Right side - Avatar and Logout -->
                 <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-gray-700">
+                        {{ session.user }}
+                    </span>
                     <Avatar
-                        label="Administrator"
+                        :label="session.user"
                         size="md"
                         class="cursor-pointer"
                         @click="handleAvatarClick"
@@ -32,6 +35,7 @@
 <script setup>
 import { Avatar, Button } from 'frappe-ui';
 import { useRouter } from 'vue-router';
+import { session } from '../data/session';
 
 const router = useRouter();
 
@@ -43,6 +47,6 @@ function handleAvatarClick() {
 function handleLogout() {
     // Add logout logic here
     console.log('Logging out...');
-    router.push('/account/login');
+    session.logout.submit();
 }
 </script>

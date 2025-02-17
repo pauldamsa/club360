@@ -4,34 +4,36 @@
       Welcome {{ session.user }}!
     </h2>
 
-    <Button theme="gray" variant="solid" icon-left="code" @click="ping.fetch" :loading="ping.loading">
-      Click to send 'ping' request
-    </Button>
-    <div>
-      {{ ping.data }}
+    <div class="flex space-x-4">
+      <Button
+        variant="solid"
+        label="Add Club Member"
+        @click="addMemberDialog.openDialog()"
+      />
+      <Button
+        variant="solid"
+        label="Add visits"
+      />
+      <Button
+        variant="solid"
+        label="Add Coach"
+      />
     </div>
-    <pre>{{ ping }}</pre>
 
-    <div class="flex flex-row space-x-2 mt-4">
-      <Button @click="showDialog = true">Open Dialog</Button>
-      <Button @click="session.logout.submit()">Logout</Button>
-    </div>
-
-    <!-- Dialog -->
-    <Dialog title="Title" v-model="showDialog"> Dialog content </Dialog>
+    <AddMemberDialog ref="addMemberDialog" @memberAdded="handleMemberAdded" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Dialog } from 'frappe-ui'
-import { createResource } from 'frappe-ui'
+import { Dialog, Button } from 'frappe-ui'
 import { session } from '../data/session'
+import AddMemberDialog from '@/components/AddMemberDialog.vue'
 
-const ping = createResource({
-  url: 'ping',
-  auto: true,
-})
+const addMemberDialog = ref(null)
 
-const showDialog = ref(false)
+function handleMemberAdded() {
+  // Handle successful member addition
+  console.log('Member added successfully')
+}
 </script>
