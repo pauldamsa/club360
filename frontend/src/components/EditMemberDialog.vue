@@ -22,42 +22,84 @@
         <template #body-content>
             <div class="space-y-4 p-4">
                 <div class="grid grid-cols-2 gap-4">
-                    <Input 
+                    <!-- <Input 
                         label="First Name" 
                         v-model="formData.first_name" 
                         required 
-                    />
-                    <Input 
-                        label="Last Name" 
-                        v-model="formData.last_name" 
-                        required 
+                    /> -->
+                    <div class="p-2">
+                        <FormControl
+                            :type="'text'"
+                            :ref_for="true"
+                            size="sm"
+                            variant="subtle"
+                            placeholder="John"
+                            :disabled="false"
+                            label="First Name"
+                            v-model="formData.first_name"
+                        />
+                    </div>
+                    <div class="p-2">
+                        <FormControl
+                            :type="'text'"
+                            :ref_for="true"
+                            size="sm"
+                            variant="subtle"
+                            placeholder="John"
+                            :disabled="false"
+                            label="Last Name"
+                            v-model="formData.last_name"
+                        />
+                    </div>
+                </div>
+                <div class="p-2">
+                    <FormControl
+                        type="autocomplete"
+                        :options="coachOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select a coach"
+                        :disabled="false"
+                        label="Coach"
+                        v-model="formData.coach"
                     />
                 </div>
-                <Select 
-                    label="Coach" 
-                    v-model="formData.coach" 
-                    :options="coachOptions" 
-                    placeholder="Select a coach" 
-                    required 
-                />
-                <Select 
-                    label="Source" 
-                    v-model="formData.source" 
-                    :options="sourceOptions" 
-                    placeholder="Select the source" 
-                    required 
-                />
-                <Input 
-                    label="Referrals" 
-                    v-model="formData.referrals" 
-                    type="number" 
-                />
-                <Select 
-                    label="Status" 
-                    v-model="formData.status" 
-                    :options="statusOptions" 
-                    required 
-                />
+                <div class="p-2">
+                    <FormControl
+                        type="select"
+                        :options="sourceOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select the source of the member" 
+                        :disabled="false"
+                        label="Source"
+                        v-model="formData.source"
+                    />
+                </div>
+                <div class="p-2">
+                    <FormControl
+                        :type="'number'"
+                        :ref_for="true"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Number of referrals"
+                        :disabled="false"
+                        label="Refferals"
+                        v-model="formData.referrals"
+                    />
+                </div>
+                <div class="p-2">
+                    <FormControl
+                        type="select"
+                        :options="statusOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select the status of the member" 
+                        :disabled="false"
+                        label="Status"
+                        v-model="formData.status"
+                    />
+                </div>
             </div>
         </template>
     </Dialog>
@@ -65,7 +107,7 @@
 
 <script setup>
 import { ref, defineExpose, computed, watch } from 'vue';
-import { Dialog, Input, Select, createListResource } from 'frappe-ui';
+import { Dialog, Input, Select, createListResource, FormControl } from 'frappe-ui';
 
 const props = defineProps({
     memberData: {

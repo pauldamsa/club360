@@ -148,9 +148,8 @@ const isEditing = ref(false);
 const editableMemberships = ref([]);
 
 const membershipTypes = [
-    { label: 'Monthly', value: 'Monthly' },
-    { label: 'Yearly', value: 'Yearly' },
-    { label: 'Pay Per Visit', value: 'Pay Per Visit' }
+    { label: '10 visits', value: '10 visits' },
+    { label: '30 visits', value: '30 visits' },
 ];
 
 const route = useRoute();

@@ -39,8 +39,7 @@
    "fieldname": "memberships",
    "fieldtype": "Table",
    "label": "Memberships",
-   "options": "Membership",
-   "reqd": 1
+   "options": "Membership"
   },
   {
    "fieldname": "first_name",
@@ -96,7 +95,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-16 19:18:30.731799",
+ "modified": "2025-02-17 20:28:08.468442",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Club Member",

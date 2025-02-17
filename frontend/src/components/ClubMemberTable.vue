@@ -1,5 +1,28 @@
 <template>
     <div v-if="clubMemberList" class="bg-white rounded-lg shadow">
+        <!-- Add search bar -->
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center space-x-2">
+                <div class="w-full max-w-md">
+                    <Input
+                        type="text"
+                        placeholder="Search members by name..."
+                        v-model="searchTerm"
+                        :icon="searchTerm ? 'x' : 'search'"
+                        @icon-click="clearSearch"
+                        @keyup.enter="performSearch"
+                    />
+                </div>
+                <Button
+                    variant="solid"
+                    label="Search"
+                    icon="search"
+                    :loading="clubMemberResource.loading"
+                    @click="performSearch"
+                />
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -31,10 +54,7 @@
                             <Badge :label="member.coach" >{{ member.coach }}</Badge>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <Badge :label="member.status" 
-                                :class="{'bg-green-500 text-white opacity-75': member.status === 'Active', 'bg-red-500 text-white opacity-75': member.status === 'Inactive'}">
-                                {{ member.status }}
-                            </Badge>
+                            {{ member.status }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             1
@@ -47,17 +67,24 @@
 </template>
 
 <script setup>
-import { createListResource, Badge, Avatar, Button } from 'frappe-ui';
-import { computed } from 'vue';
+import { createListResource, Badge, Avatar, Button, Input } from 'frappe-ui';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const searchTerm = ref('');
 
 const clubMemberResource = createListResource({
     doctype: 'Club Member',
     fields: ['full_name', 'first_name', 'last_name', 'coach', 'memberships', 'status'],
+    filters: computed(() => {
+        if (!searchTerm.value) return {};
+        return {
+            full_name: ['like', `%${searchTerm.value}%`]
+        };
+    }),
     auto: true,
-})
+});
 
 const clubMemberList = computed(() => {
     if (clubMemberResource.list.data) {
@@ -65,6 +92,15 @@ const clubMemberList = computed(() => {
     }
     return [];
 })
+
+function clearSearch() {
+    searchTerm.value = '';
+    performSearch();
+}
+
+function performSearch() {
+    clubMemberResource.reload();
+}
 
 function navigateToDetails(member) {
     router.push({
