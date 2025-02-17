@@ -24,9 +24,9 @@
                         variant="danger"
                         icon="log-out"
                         label="Logout"
+                        class="cursor-pointer"
                         @click="handleLogout"
                     />
-                    
                 </div>
             </div>
         </div>
