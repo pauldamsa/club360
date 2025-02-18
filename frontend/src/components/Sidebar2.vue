@@ -116,6 +116,37 @@
                             </router-link>
                         </div>
                     </div>
+
+                    <!-- Statistics Section with Dropdown -->
+                    <div class="w-full">
+                        <button
+                            @click="toggleStats"
+                            class="w-full flex items-center justify-between px-3 py-2 text-gray-600 rounded-lg hover:bg-gray-100"
+                            :class="{ 'bg-gray-200/70': isStatsActive }"
+                        >
+                            <div class="flex items-center">
+                                <BarChart2 class="h-5 w-5 flex-shrink-0 mr-3" />
+                                <span v-show="!isCollapsed">Statistics</span>
+                            </div>
+                            <FeatherIcon 
+                                v-show="!isCollapsed"
+                                :name="showStats ? 'chevron-down' : 'chevron-right'" 
+                                class="w-4 h-4"
+                            />
+                        </button>
+                        
+                        <div v-show="showStats && !isCollapsed" class="mt-1 ml-7 space-y-1">
+                            <router-link
+                                v-for="item in statsItems"
+                                :key="item.path"
+                                :to="item.path"
+                                class="block py-2 px-3 text-sm text-gray-600 rounded-lg hover:bg-gray-100"
+                                :class="{ 'bg-gray-100': $route.path === item.path }"
+                            >
+                                {{ item.label }}
+                            </router-link>
+                        </div>
+                    </div>
                     
 				</nav>
 			</div>
@@ -151,7 +182,8 @@ import {
 	Building2,
 	HomeIcon,
     Users,
-    Settings
+    Settings,
+    BarChart2
 } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -193,6 +225,19 @@ const isAdminActive = computed(() => {
 
 function toggleAdmin() {
     showAdmin.value = !showAdmin.value;
+}
+
+const showStats = ref(false);
+const statsItems = [
+    { label: 'Club', path: '/statistics/club' }
+];
+
+const isStatsActive = computed(() => {
+    return statsItems.some(item => route.path === item.path);
+});
+
+function toggleStats() {
+    showStats.value = !showStats.value;
 }
 
 const route = useRoute()

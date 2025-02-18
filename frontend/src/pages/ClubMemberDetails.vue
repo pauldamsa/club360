@@ -36,6 +36,13 @@
                         
                         <div class="text-gray-500">Source</div>
                         <div>{{ clubMemberDoc.source }}</div>
+
+                        <template v-if="clubMemberDoc.source === 'Referral'">
+                            <div class="text-gray-500">Referral of</div>
+                            <div>
+                                <Badge :label="clubMemberDoc.referral_of" />
+                            </div>
+                        </template>
                         
                         <div class="text-gray-500">Referrals</div>
                         <div>{{ clubMemberDoc.referrals }}</div>

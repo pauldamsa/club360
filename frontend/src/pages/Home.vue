@@ -20,6 +20,13 @@
       />
     </div>
 
+    <div class = "mt-8 space-y-4">
+      <p>Total Visits: 1000</p>
+      <p>Average visits per day: 10</p>
+      <p>Active Members: 100</p>
+      <p>Active Coaches: 10</p>
+    </div>
+
     <AddMemberDialog ref="addMemberDialog" @memberAdded="handleMemberAdded" />
   </div>
 </template>
