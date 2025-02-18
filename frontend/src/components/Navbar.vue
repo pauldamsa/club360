@@ -5,7 +5,7 @@
                 <!-- Left side - Logo -->
                 <div class="flex items-center">
                     <router-link to="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">
-                         
+                         Club 360
                     </router-link>
                 </div>
 
