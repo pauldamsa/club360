@@ -15,6 +15,7 @@
   "status",
   "referrals",
   "route",
+  "referral_of",
   "is_published",
   "section_break_uxfi",
   "memberships"
@@ -64,7 +65,7 @@
    "fieldname": "source",
    "fieldtype": "Select",
    "label": "Source",
-   "options": "Contact Activ\nContact Ocazional\nRoadshow\nRecomandare"
+   "options": "Facebook\nInstagram\nReferral\nActive Contact\nRoadshow"
   },
   {
    "fieldname": "coach",
@@ -89,13 +90,19 @@
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Is published?"
+  },
+  {
+   "fieldname": "referral_of",
+   "fieldtype": "Link",
+   "label": "Referral of",
+   "options": "Club Member"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-17 20:28:08.468442",
+ "modified": "2025-02-18 17:40:54.718524",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Club Member",

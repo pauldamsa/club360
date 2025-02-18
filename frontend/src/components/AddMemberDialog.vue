@@ -82,6 +82,18 @@
                         v-model="formData.referrals"
                     />
                 </div>
+                <div class="p-2" v-if="formData.source === 'Referral'">
+                    <FormControl
+                        type="autocomplete"
+                        :options="memberOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select the member"
+                        :disabled="false"
+                        label="Referral of"
+                        v-model="formData.referral_of"
+                    />
+                </div>
             </div>
         </template>
     </Dialog>
@@ -89,7 +101,7 @@
 
 <script setup>
 import { ref, defineExpose, computed } from 'vue';
-import { Dialog, Input, Select, createListResource, FormControl } from 'frappe-ui';
+import { Dialog, createListResource, FormControl, createResource } from 'frappe-ui';
 
 const showDialog = ref(false);
 const formData = ref({
@@ -97,7 +109,8 @@ const formData = ref({
     last_name: '',
     coach: '',
     source: '',
-    referrals: 0
+    referrals: 0,
+    referral_of: ''
 });
 
 const coachResource = createListResource({
@@ -124,12 +137,39 @@ const sourceOptions = [
     { label: 'Facebook', value: 'Facebook' },
     { label: 'Instagram', value: 'Instagram' },
     { label: 'Referral', value: 'Referral' },
-    { label: 'Walk-in', value: 'Walk-in' }
+    { label: 'Active Contact', value: 'Active Contact' },
+    { label: 'Roadshow', value: 'Roadshow' },
 ];
+
+// Add club members resource
+const clubMembersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['full_name'],
+    auto: true,
+});
+
+// Add computed property for member options
+const memberOptions = computed(() => {
+    if (!clubMembersResource.list.data) return [];
+    return clubMembersResource.list.data.map(member => ({
+        label: member.full_name,
+        value: member.full_name
+    }));
+});
+
+const addNewClubMember = createResource({
+    url: 'club360.api.add_new_club_member',
+    makeParams(){
+        return {
+            club_member: formData.value
+        }
+    }
+})
 
 function submitForm() {
     // Handle form submission
-    console.log('Form submitted:', formData.value);
+    // console.log('Form submitted:', formData.value);
+    addNewClubMember.submit()
     showDialog.value = false;
 }
 
