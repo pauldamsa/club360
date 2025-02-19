@@ -100,6 +100,18 @@
                         v-model="formData.status"
                     />
                 </div>
+                <div class="p-2" v-if="formData.source === 'Referral'">
+                    <FormControl
+                        type="autocomplete"
+                        :options="memberOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select the member"
+                        :disabled="false"
+                        label="Referral of"
+                        v-model="formData.referral_of"
+                    />
+                </div>
             </div>
         </template>
     </Dialog>
@@ -107,7 +119,7 @@
 
 <script setup>
 import { ref, defineExpose, computed, watch } from 'vue';
-import { Dialog, Input, Select, createListResource, FormControl } from 'frappe-ui';
+import { Dialog, createListResource, FormControl, createResource } from 'frappe-ui';
 
 const props = defineProps({
     memberData: {
@@ -123,7 +135,8 @@ const formData = ref({
     coach: '',
     source: '',
     referrals: 0,
-    status: ''
+    status: '',
+    referral_of: ''
 });
 
 // Watch for memberData changes and update formData
@@ -137,6 +150,21 @@ const coachResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name'],
     auto: true,
+});
+
+const clubMembersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['full_name'],
+    auto: true,
+});
+
+// Add computed property for member options
+const memberOptions = computed(() => {
+    if (!clubMembersResource.list.data) return [];
+    return clubMembersResource.list.data.map(member => ({
+        label: member.full_name,
+        value: member.full_name
+    }));
 });
 
 const coachOptions = computed(() => {
@@ -160,9 +188,19 @@ const statusOptions = [
 ];
 
 function submitForm() {
-    console.log('Saving changes:', formData.value);
+    // console.log('Saving changes:', formData.value);
+    editClubMember.submit()
     showDialog.value = false;
 }
+
+const editClubMember = createResource({
+    url: 'club360.api.edit_club_member',
+    makeParams(){
+        return {
+            new_club_member: formData.value
+        }
+    }
+})
 
 function openDialog(data) {
     formData.value = { ...data };
