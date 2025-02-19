@@ -31,6 +31,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coach</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visits Left</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -58,6 +59,14 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             1
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <Button
+                                variant="danger"
+                                icon="trash-2"
+                                size="sm"
+                                @click.stop="deleteMember(member)"
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -107,5 +116,10 @@ function navigateToDetails(member) {
         name: 'ClubMemberDetailsPage',
         params: { full_name: member.full_name }
     });
+}
+
+function deleteMember(member) {
+    console.log('Deleting member:', member.full_name);
+    // Add your delete logic here
 }
 </script>

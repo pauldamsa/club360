@@ -79,6 +79,7 @@
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remaining Visits</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -119,6 +120,14 @@
                                                 'bg-yellow-100 text-yellow-800': membership.remaining_visits <= 5 && membership.remaining_visits > 0,
                                                 'bg-red-100 text-red-800': membership.remaining_visits === 0
                                             }"
+                                        />
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <Button
+                                            variant="danger"
+                                            icon="trash-2"
+                                            size="sm"
+                                            @click="deleteMembership(index)"
                                         />
                                     </td>
                                 </tr>
@@ -191,8 +200,7 @@ function formatDate(date) {
 }
 
 function saveMembershipChanges() {
-    clubMemberResource.setValue('memberships', editableMemberships.value);
-    clubMemberResource.save().then(() => {
+    editMembership.submit().then(() => {
         isEditing.value = false;
         clubMemberResource.reload();
     });
@@ -212,7 +220,7 @@ function handleAddMembership() {
     let new_membership = {
         type: '10 visits',
         start_date: new Date().toISOString().split('T')[0],
-        end_date: new Date(Date.now() + 27 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         remaining_visits: 10
     };
     editableMemberships.value.push(new_membership);
@@ -228,5 +236,20 @@ const editMemberDialog = ref(null);
 
 function handleEditMember() {
     editMemberDialog.value?.openDialog(clubMemberDoc.value);
+}
+
+const editMembership = createResource({
+    url: 'club360.api.edit_membership',
+    makeParams: (values) => ({
+        request_membership: {
+            memberships: editableMemberships.value,
+            club_member: clubMemberDoc.value.name
+        }
+    })
+});
+
+function deleteMembership(index) {
+    editableMemberships.value.splice(index, 1);
+    // saveMembershipChanges();
 }
 </script>

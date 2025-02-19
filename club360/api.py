@@ -16,7 +16,7 @@ def add_new_club_member(club_member):
     new_club_member.set('memberships', [{
         'type': '10 visits',
         'start_date': frappe.utils.getdate(frappe.utils.today()).strftime('%Y-%m-%d'),
-        'end_date': (frappe.utils.getdate(frappe.utils.today()) + frappe.utils.datetime.timedelta(days=27)).strftime('%Y-%m-%d'),
+        'end_date': (frappe.utils.getdate(frappe.utils.today()) + frappe.utils.datetime.timedelta(days=30)).strftime('%Y-%m-%d'),
         'remaining_visits': 10
     }])
     new_club_member.insert(ignore_permissions=True)
@@ -61,3 +61,23 @@ def add_new_membership(memberships_and_club_member):
         'remaining_visits': new_membership['remaining_visits']
     })
     doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def edit_membership(request_membership):
+    memberships = request_membership['memberships']
+    club_member = request_membership['club_member']
+    
+    doc = frappe.get_doc('Club Member', club_member)
+    doc.memberships = []  # Clear existing memberships
+    
+    for membership in memberships:
+        doc.append('memberships', {
+            'type': membership['type'],
+            'start_date': membership['start_date'],
+            'end_date': membership['end_date'],
+            'remaining_visits': membership['remaining_visits']
+        })
+    
+    doc.save(ignore_permissions=True)
+    return doc
