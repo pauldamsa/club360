@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select } from 'frappe-ui';
+import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource } from 'frappe-ui';
 import EditMemberDialog from '@/components/EditMemberDialog.vue';
 import { useRoute } from 'vue-router';
 import { computed, ref, watch } from 'vue';
@@ -198,8 +198,25 @@ function saveMembershipChanges() {
     });
 }
 
+const editClubMember = createResource({
+    url: 'club360.api.add_new_membership',
+    makeParams: (values) => ({
+        memberships_and_club_member: {
+            memberships: editableMemberships.value,
+            club_member: clubMemberDoc.value.name
+        }
+    })
+});
+
 function handleAddMembership() {
-    console.log('Adding new membership');
+    let new_membership = {
+        type: '10 visits',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 27 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        remaining_visits: 10
+    };
+    editableMemberships.value.push(new_membership);
+    editClubMember.submit();
 }
 
 function cancelEdit() {
