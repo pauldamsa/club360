@@ -12,8 +12,8 @@ def add_new_club_member(club_member):
     new_club_member.source = club_member['source']
     new_club_member.status = 'Active'
     new_club_member.refferal = 0
-    new_club_member.referral_of = club_member['referral_of']['value']
-    
+    new_club_member.referral_of = club_member['referral_of']['value'] if club_member['source'] == 'Referral' else ''
+
     new_club_member.set('memberships', [{
         'type': '10 visits',
         'start_date': frappe.utils.getdate(frappe.utils.today()).strftime('%Y-%m-%d'),
@@ -21,6 +21,6 @@ def add_new_club_member(club_member):
         'remaining_visits': 10
     }])
 
-    # print("New Club Member:", frappe.as_json(new_club_member.as_dict()))
+    print("New Club Member:", frappe.as_json(new_club_member.as_dict()))
     new_club_member.insert(ignore_permissions=True)
     return new_club_member

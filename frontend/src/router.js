@@ -22,6 +22,11 @@ const routes = [
     name:'ClubMemberDetailsPage',
     path:'/club-members/:full_name',
     component: () => import('@/pages/ClubMemberDetails.vue'),
+  },
+  {
+    name: 'PlannerPage',
+    path: '/planner',
+    component: () => import('@/pages/PlannerPage.vue'),
   }
 ]
 
