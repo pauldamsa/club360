@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-shrink-0 flex-col bg-white shadow-xl transition-all duration-300"
+        class="fixed top-16 left-0 h-[calc(100vh-4rem)] flex flex-shrink-0 flex-col bg-white shadow-xl transition-all duration-300 z-40"
         :class="{ 'w-60': !isCollapsed, 'w-14': isCollapsed }"
         v-if="currentRoute"
     >
@@ -8,45 +8,6 @@
         <div class="flex-1 overflow-y-auto p-2.5">
 			<div class="mt-4 flex flex-col">
 				<nav class="flex-1 space-y-1 pb-4 text-base">
-					<!-- <Tooltip
-						v-for="route in sidebarItems"
-						:key="route.path"
-						placement="right"
-						:hoverDelay="0.1"
-						class="w-full"
-					>
-						<template #body>
-							<div
-								class="w-fit rounded border border-gray-100 bg-gray-800 px-2 py-1 text-xs text-white shadow-xl"
-							>
-								{{ route.label }}
-							</div>
-						</template>
-
-						<router-link
-							:to="route.path"
-							:class="[
-								route.current
-									? 'bg-gray-200/70'
-									: 'text-gray-700 hover:bg-gray-50 hover:text-gray-800',
-									'group flex w-full items-center rounded p-2 font-medium',
-							]"
-							aria-current="page"
-						>
-							<component
-								:is="route.icon"
-								:stroke-width="1.5"
-								:class="[
-									route.current
-										? 'text-gray-800'
-										: 'text-gray-700 group-hover:text-gray-700',
-									'h-5 w-5 flex-shrink-0 mr-3',
-								]"
-							/>
-
-							<span v-show="!isCollapsed">{{ route.label }}</span>
-						</router-link>
-					</Tooltip> -->
                     <router-link 
                         to="/" 
                         class="flex items-center px-3 py-2 text-gray-600 rounded-lg hover:bg-gray-100"
@@ -174,6 +135,21 @@ import { Avatar, FeatherIcon, Tooltip } from 'frappe-ui'
 
 const isCollapsed = ref(false);
 
+// Add responsive handling
+function checkScreenSize() {
+    isCollapsed.value = window.innerWidth < 1024; // collapse for screens smaller than lg breakpoint
+}
+
+// Add lifecycle hooks for screen size checks
+onMounted(() => {
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkScreenSize);
+});
+
 function toggleCollapse() {
     isCollapsed.value = !isCollapsed.value;
 }
@@ -185,7 +161,7 @@ import {
     Settings,
     BarChart2
 } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const sidebarItems = ref([

@@ -1,12 +1,10 @@
 <template>
-    <div class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow w-full fixed top-0 right-0 z-30">
+        <div class="px-4 sm:px-6">
             <div class="flex justify-between h-16">
                 <!-- Left side - Logo -->
                 <div class="flex items-center">
-                    <router-link to="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">
-                         Club 360
-                    </router-link>
+                    <span class="text-xl font-bold text-gray-900">Club360</span>
                 </div>
 
                 <!-- Right side - Avatar and Logout -->

@@ -21,6 +21,7 @@
     </div>
 
     <div class = "mt-8 space-y-4">
+      <h3 class="font-bold text-lg text-gray-600">Club Stats</h3>
       <p>Total Visits: 1000</p>
       <p>Average visits per day: 10</p>
       <p>Active Members: 100</p>

@@ -81,3 +81,16 @@ def edit_membership(request_membership):
     
     doc.save(ignore_permissions=True)
     return doc
+
+@frappe.whitelist()
+def delete_club_member(club_member):
+    try:
+        doc = frappe.get_doc('Club Member', club_member['full_name'])
+        doc_name = doc.name  # store name before deletion
+        doc.delete(ignore_permissions=True)
+        frappe.db.commit()
+        return {"message": f"Club member {doc_name} deleted successfully"}
+    except frappe.DoesNotExistError:
+        frappe.throw('Club Member not found')
+    except Exception as e:
+        frappe.throw(f'Error deleting club member: {str(e)}')

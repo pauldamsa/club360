@@ -73,10 +73,36 @@
             </table>
         </div>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog
+        :options="{
+            title: 'Delete Member',
+            actions: [
+                {
+                    label: 'Cancel',
+                    variant: 'outline',
+                    onClick: () => showDeleteDialog = false
+                },
+                {
+                    label: 'Delete',
+                    variant: 'danger',
+                    onClick: confirmDelete
+                }
+            ]
+        }"
+        v-model="showDeleteDialog"
+    >
+        <template #body-content>
+            <p class="text-gray-600">
+                Are you sure you want to delete {{ memberToDelete?.full_name }}?
+            </p>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
-import { createListResource, Badge, Avatar, Button, Input } from 'frappe-ui';
+import { createListResource, createResource, Badge, Avatar, Button, Input, Dialog } from 'frappe-ui';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -102,6 +128,18 @@ const clubMemberList = computed(() => {
     return [];
 })
 
+const deleteResource = createResource({
+    url: 'club360.api.delete_club_member',
+    makeParams() {
+        return {
+            club_member: memberToDelete.value
+        };
+    }
+});
+
+const showDeleteDialog = ref(false);
+const memberToDelete = ref(null);
+
 function clearSearch() {
     searchTerm.value = '';
     performSearch();
@@ -119,7 +157,21 @@ function navigateToDetails(member) {
 }
 
 function deleteMember(member) {
-    console.log('Deleting member:', member.full_name);
-    // Add your delete logic here
+    memberToDelete.value = member;
+    showDeleteDialog.value = true;
+}
+
+function confirmDelete() {
+    if (!memberToDelete.value) return;
+    
+    deleteResource.submit().then(() => {
+        showDeleteDialog.value = false;
+        memberToDelete.value = null;
+        clubMemberResource.reload().then(() => {
+            console.log('Member deleted successfully');
+        });
+    }).catch(error => {
+        console.error('Error deleting member:', error);
+    });
 }
 </script>
