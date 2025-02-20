@@ -75,7 +75,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Role",
-   "options": "Stagiar\nPartener Junior\nProprietar de Club",
+   "options": "Trainee\nJunior Partner",
    "reqd": 1
   },
   {
@@ -111,7 +111,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-09 13:33:14.053165",
+ "modified": "2025-02-20 14:34:15.705040",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Coach",

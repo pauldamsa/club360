@@ -32,6 +32,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sponsor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -54,28 +55,64 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <Badge 
                                 :label="coach.role"
-                                class="bg-blue-100 text-blue-800"
                             />
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <Badge 
                                 :label="coach.level"
-                                class="bg-purple-100 text-purple-800"
                             />
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span v-if="coach.sponsor" class="text-gray-500">{{ coach.sponsor }}</span>
                             <span v-else class="text-gray-500">-</span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <Button
+                                variant="danger"
+                                icon="trash-2"
+                                size="sm"
+                                @click.stop="deleteCoach(coach)"
+                            />
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Delete Confirmation Dialog -->
+        <Dialog
+            :options="{
+                title: 'Delete Coach',
+                actions: [
+                    {
+                        label: 'Cancel',
+                        variant: 'outline',
+                        onClick: () => showDeleteDialog = false
+                    },
+                    {
+                        label: 'Delete',
+                        variant: 'danger',
+                        onClick: confirmDelete
+                    }
+                ]
+            }"
+            v-model="showDeleteDialog"
+        >
+            <template #body-content>
+                <p class="text-gray-600">
+                    Are you sure you want to delete {{ coachToDelete?.full_name }}?
+                </p>
+                <div class="mt-2 text-sm text-gray-500">
+                    Role: {{ coachToDelete?.role }}<br>
+                    Level: {{ coachToDelete?.level }}
+                </div>
+            </template>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
-import { createListResource, Badge, Avatar, Button, Input } from 'frappe-ui';
+import { createListResource, Badge, Avatar, Button, Input, Dialog } from 'frappe-ui';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -98,6 +135,9 @@ const coachesList = computed(() => {
     return coachesResource.list.data || [];
 });
 
+const showDeleteDialog = ref(false);
+const coachToDelete = ref(null);
+
 function clearSearch() {
     searchTerm.value = '';
     performSearch();
@@ -108,9 +148,22 @@ function performSearch() {
 }
 
 function navigateToDetails(coach) {
-    // router.push({
-    //     name: 'CoachDetailsPage',
-    //     params: { full_name: coach.full_name }
-    // });
+    router.push({
+        name: 'CoachDetailsPage',
+        params: { full_name: coach.full_name }
+    });
+}
+
+function deleteCoach(coach) {
+    coachToDelete.value = coach;
+    showDeleteDialog.value = true;
+}
+
+function confirmDelete() {
+    if (!coachToDelete.value) return;
+    console.log('Confirming delete for:', coachToDelete.value.full_name);
+    // TODO: Implement actual delete API call
+    showDeleteDialog.value = false;
+    coachToDelete.value = null;
 }
 </script>

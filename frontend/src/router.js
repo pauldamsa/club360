@@ -32,7 +32,12 @@ const routes = [
     name: 'CoachesPage',
     path: '/coaches',
     component: () => import('@/pages/CoachesPage.vue'),
-  }
+  },
+  {
+    name:'CoachDetailsPage',
+    path:'/coaches/:full_name',
+    component: () => import('@/pages/CoachDetailsPage.vue'),
+  },
 ]
 
 let router = createRouter({
