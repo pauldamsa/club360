@@ -30,7 +30,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coach</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visits Left</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -56,9 +55,6 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ member.status }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            1
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <Button
@@ -111,7 +107,7 @@ const searchTerm = ref('');
 
 const clubMemberResource = createListResource({
     doctype: 'Club Member',
-    fields: ['full_name', 'first_name', 'last_name', 'coach', 'memberships', 'status'],
+    fields: ['name', 'full_name', 'first_name', 'last_name', 'coach', 'memberships', 'status'],
     filters: computed(() => {
         if (!searchTerm.value) return {};
         return {

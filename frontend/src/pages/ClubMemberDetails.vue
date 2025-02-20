@@ -248,8 +248,17 @@ const editMembership = createResource({
     })
 });
 
+const deleteClubMemberMembership = createResource({
+    url: 'club360.api.delete_club_member_membership',
+    makeParams: (values) => ({
+        memberships_and_club_member: {
+            memberships: editableMemberships.value,
+            club_member: clubMemberDoc.value
+        }
+    })
+});
 function deleteMembership(index) {
     editableMemberships.value.splice(index, 1);
-    // saveMembershipChanges();
+    deleteClubMemberMembership.submit();
 }
 </script>

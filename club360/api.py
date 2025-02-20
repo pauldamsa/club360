@@ -85,7 +85,7 @@ def edit_membership(request_membership):
 @frappe.whitelist()
 def delete_club_member(club_member):
     try:
-        doc = frappe.get_doc('Club Member', club_member['full_name'])
+        doc = frappe.get_doc('Club Member', club_member.get('name'))  # Fix: use get() for safe access
         doc_name = doc.name  # store name before deletion
         doc.delete(ignore_permissions=True)
         frappe.db.commit()
@@ -94,3 +94,19 @@ def delete_club_member(club_member):
         frappe.throw('Club Member not found')
     except Exception as e:
         frappe.throw(f'Error deleting club member: {str(e)}')
+
+@frappe.whitelist()
+def delete_club_member_membership(memberships_and_club_member):
+    memberships = memberships_and_club_member['memberships']
+    club_member = memberships_and_club_member['club_member']
+    doc = frappe.get_doc('Club Member', club_member['full_name'])
+    doc.memberships = []
+    for membership in memberships:
+        doc.append('memberships', {
+            'type': membership['type'],
+            'start_date': membership['start_date'],
+            'end_date': membership['end_date'],
+            'remaining_visits': membership['remaining_visits']
+        })
+    doc.save(ignore_permissions=True)
+    return doc
