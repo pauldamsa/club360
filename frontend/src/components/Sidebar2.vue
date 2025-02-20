@@ -1,20 +1,31 @@
 <template>
+    <!-- Mobile overlay backdrop -->
+    <div 
+        v-if="isMobileOrTablet && isMobileMenuOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 z-30"
+        @click="toggleMobileMenu"
+    ></div>
+
     <div
-        class="fixed top-16 left-0 h-[calc(100vh-4rem)] flex flex-shrink-0 flex-col bg-white shadow-xl transition-all duration-300 z-40"
-        :class="{ 'w-60': !isCollapsed, 'w-14': isCollapsed }"
+        class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-60 flex flex-shrink-0 flex-col bg-white shadow-xl transition-all duration-300"
+        :class="{
+            'z-40': isMobileMenuOpen,
+            '-translate-x-full': isMobileOrTablet && !isMobileMenuOpen,
+            'translate-x-0': !isMobileOrTablet || isMobileMenuOpen
+        }"
         v-if="currentRoute"
     >
         <!-- Main content wrapper -->
         <div class="flex-1 overflow-y-auto p-2.5">
-			<div class="mt-4 flex flex-col">
-				<nav class="flex-1 space-y-1 pb-4 text-base">
+            <div class="mt-4 flex flex-col">
+                <nav class="flex-1 space-y-1 pb-4 text-base">
                     <router-link 
                         to="/" 
                         class="flex items-center px-3 py-2 text-gray-600 rounded-lg hover:bg-gray-100"
                         :class="{ 'bg-gray-100': $route.path === '/' }"
                     >
-                        <FeatherIcon name="home" class="w-5 h-5" :class="{ 'mr-3': !isCollapsed }" />
-                        <span v-show="!isCollapsed">Home</span>
+                        <FeatherIcon name="home" class="w-5 h-5 mr-3" />
+                        <span>Home</span>
                     </router-link>
 					<!-- Members Section with Dropdown -->
 					<div class="w-full">
@@ -25,16 +36,15 @@
 						>
 							<div class="flex items-center">
 								<Users class="h-5 w-5 flex-shrink-0 mr-3" />
-								<span v-show="!isCollapsed">Members</span>
+									<span>Members</span>
 							</div>
 							<FeatherIcon 
-								v-show="!isCollapsed"
 								:name="showMembers ? 'chevron-down' : 'chevron-right'" 
 								class="w-4 h-4"
 							/>
 						</button>
 						
-						<div v-show="showMembers && !isCollapsed" class="mt-1 ml-7 space-y-1">
+						<div v-show="showMembers" class="mt-1 ml-7 space-y-1">
 							<router-link
 								v-for="item in membersItems"
 								:key="item.path"
@@ -56,16 +66,15 @@
                         >
                             <div class="flex items-center">
                                 <Settings class="h-5 w-5 flex-shrink-0 mr-3" />
-                                <span v-show="!isCollapsed">Administration</span>
+                                <span>Administration</span>
                             </div>
                             <FeatherIcon 
-                                v-show="!isCollapsed"
                                 :name="showAdmin ? 'chevron-down' : 'chevron-right'" 
                                 class="w-4 h-4"
                             />
                         </button>
                         
-                        <div v-show="showAdmin && !isCollapsed" class="mt-1 ml-7 space-y-1">
+                        <div v-show="showAdmin" class="mt-1 ml-7 space-y-1">
                             <router-link
                                 v-for="item in adminItems"
                                 :key="item.path"
@@ -87,16 +96,15 @@
                         >
                             <div class="flex items-center">
                                 <BarChart2 class="h-5 w-5 flex-shrink-0 mr-3" />
-                                <span v-show="!isCollapsed">Statistics</span>
+                                <span>Statistics</span>
                             </div>
                             <FeatherIcon 
-                                v-show="!isCollapsed"
                                 :name="showStats ? 'chevron-down' : 'chevron-right'" 
                                 class="w-4 h-4"
                             />
                         </button>
                         
-                        <div v-show="showStats && !isCollapsed" class="mt-1 ml-7 space-y-1">
+                        <div v-show="showStats" class="mt-1 ml-7 space-y-1">
                             <router-link
                                 v-for="item in statsItems"
                                 :key="item.path"
@@ -112,57 +120,28 @@
 				</nav>
 			</div>
         </div>
-
-        <!-- Collapse button fixed at bottom -->
-        <div class="border-t border-gray-200  mt-auto">
-            <button 
-                @click="toggleCollapse" 
-                class="w-full flex items-center justify-center px-3 py-2 text-gray-600 hover:bg-gray-100"
-            >
-                <FeatherIcon 
-                    :name="isCollapsed ? 'chevron-right' : 'chevron-left'" 
-                    class="w-4 h-4"
-                />
-                <span v-show="!isCollapsed" class="ml-2">Collapse</span>
-            </button>
-        </div>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <button 
+        v-if="isMobileOrTablet"
+        class="fixed bottom-4 left-4 z-50 p-3 rounded-full bg-white shadow-lg hover:bg-gray-100"
+        @click="toggleMobileMenu"
+    >
+        <FeatherIcon 
+            :name="isMobileMenuOpen ? 'x' : 'menu'" 
+            class="w-6 h-6 text-gray-600"
+        />
+    </button>
 </template>
 
 <script setup>
 import { Avatar, FeatherIcon, Tooltip } from 'frappe-ui'
-// ...existing imports...
-
-const isCollapsed = ref(false);
-
-// Add responsive handling
-function checkScreenSize() {
-    isCollapsed.value = window.innerWidth < 1024; // collapse for screens smaller than lg breakpoint
-}
-
-// Add lifecycle hooks for screen size checks
-onMounted(() => {
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('resize', checkScreenSize);
-});
-
-function toggleCollapse() {
-    isCollapsed.value = !isCollapsed.value;
-}
-
-import {
-	Building2,
-	HomeIcon,
-    Users,
-    Settings,
-    BarChart2
-} from 'lucide-vue-next'
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { Building2, HomeIcon, Users, Settings, BarChart2 } from 'lucide-vue-next'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const sidebarItems = ref([
 	{
@@ -216,7 +195,6 @@ function toggleStats() {
     showStats.value = !showStats.value;
 }
 
-const route = useRoute()
 const currentRoute = computed(() => {
 	sidebarItems.value.forEach((item) => {
 		// check if /<route> or /<route>/<id> is in sidebar item path
@@ -224,4 +202,28 @@ const currentRoute = computed(() => {
 	})
 	return route.path
 })
+
+const isMobileOrTablet = ref(false);
+const isMobileMenuOpen = ref(false);
+
+function checkScreenSize() {
+    isMobileOrTablet.value = window.innerWidth < 1024; // lg breakpoint
+    if (!isMobileOrTablet.value) {
+        isMobileMenuOpen.value = false;
+    }
+}
+
+function toggleMobileMenu() {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+}
+
+// Add lifecycle hooks for screen size checks
+onMounted(() => {
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkScreenSize);
+});
 </script>
