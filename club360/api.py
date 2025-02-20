@@ -4,6 +4,12 @@ import frappe
 def add_new_club_member(club_member):
     new_club_member = frappe.new_doc('Club Member')
 
+    if club_member['source'] == 'Referral':
+        referral_name = club_member['referral_of']['value']
+        club_member_to_update_referrals_number = frappe.get_doc('Club Member', referral_name)
+        club_member_to_update_referrals_number.referrals += 1
+        club_member_to_update_referrals_number.save(ignore_permissions=True)
+        
     new_club_member.first_name = club_member['first_name']
     new_club_member.last_name = club_member['last_name']
     new_club_member.coach = club_member['coach']['value']

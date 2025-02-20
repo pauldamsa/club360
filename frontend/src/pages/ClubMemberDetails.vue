@@ -150,18 +150,109 @@
                 </div>
             </Card>
         </div>
+
+        <!-- Referrals Section -->
+        <div class="mt-6">
+            <Card>
+                <div class="space-y-4">
+                    <h2 class="text-lg font-medium mb-4">Member Referrals</h2>
+                    <div v-if="referralsList.length === 0" class="text-gray-500 text-center py-4">
+                        No referrals yet
+                    </div>
+                    <div v-else class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="referral in referralsList" :key="referral.name" class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <Avatar :label="referral.full_name" size="sm" class="mr-2" />
+                                            <span>{{ referral.full_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <Badge :label="referral.status" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </Card>
+        </div>
     </div>
+    <!-- Delete Confirmation Dialog -->
+    <Dialog
+        :options="{
+            title: 'Delete Member',
+            actions: [
+                {
+                    label: 'Cancel',
+                    variant: 'outline',
+                    onClick: () => showDeleteDialog = false
+                },
+                {
+                    label: 'Delete',
+                    variant: 'danger',
+                    onClick: confirmDelete
+                }
+            ]
+        }"
+        v-model="showDeleteDialog"
+    >
+        <template #body-content>
+            <p class="text-gray-600">
+                Are you sure you want to delete {{ memberToDelete?.full_name }}?
+            </p>
+        </template>
+    </Dialog>
     <EditMemberDialog ref="editMemberDialog" />
+
+    <!-- Membership Delete Dialog -->
+    <Dialog
+        :options="{
+            title: 'Delete Membership',
+            actions: [
+                {
+                    label: 'Cancel',
+                    variant: 'outline',
+                    onClick: () => showMembershipDeleteDialog = false
+                },
+                {
+                    label: 'Delete',
+                    variant: 'danger',
+                    onClick: confirmMembershipDelete
+                }
+            ]
+        }"
+        v-model="showMembershipDeleteDialog"
+    >
+        <template #body-content>
+            <p class="text-gray-600">
+                Are you sure you want to delete this membership?
+            </p>
+            <div class="mt-2 text-sm text-gray-500">
+                Type: {{ membershipToDelete?.type }}<br>
+                Remaining Visits: {{ membershipToDelete?.remaining_visits }}
+            </div>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
-import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource } from 'frappe-ui';
+import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource, createListResource, Dialog } from 'frappe-ui';
 import EditMemberDialog from '@/components/EditMemberDialog.vue';
 import { useRoute } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 
 const isEditing = ref(false);
 const editableMemberships = ref([]);
+const showDeleteDialog = ref(false);
 
 const membershipTypes = [
     { label: '10 visits', value: '10 visits' },
@@ -257,8 +348,48 @@ const deleteClubMemberMembership = createResource({
         }
     })
 });
+
+const showMembershipDeleteDialog = ref(false);
+const membershipToDelete = ref(null);
+
 function deleteMembership(index) {
-    editableMemberships.value.splice(index, 1);
-    deleteClubMemberMembership.submit();
+    membershipToDelete.value = editableMemberships.value[index];
+    showMembershipDeleteDialog.value = true;
 }
+
+function confirmMembershipDelete() {
+    if (!membershipToDelete.value) return;
+    
+    const index = editableMemberships.value.findIndex(m => m === membershipToDelete.value);
+    if (index !== -1) {
+        editableMemberships.value.splice(index, 1);
+        deleteClubMemberMembership.submit().then(() => {
+            showMembershipDeleteDialog.value = false;
+            membershipToDelete.value = null;
+        });
+    }
+}
+
+const referralsResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name', 'status'],
+    filters: {
+        referral_of: route.params.full_name
+    },
+    auto: true,
+    transform(data) {
+        return data.filter(member => member.referral_of === route.params.full_name);
+    }
+});
+
+const referralsList = computed(() => {
+    return referralsResource.list.data || [];
+});
+
+// Watch for changes in the club member's name and reload referrals
+watch(() => route.params.full_name, (newName) => {
+    if (newName) {
+        referralsResource.reload();
+    }
+}, { immediate: true });
 </script>
