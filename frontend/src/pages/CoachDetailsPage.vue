@@ -105,6 +105,131 @@
                     </table>
                 </div>
             </Card>
+
+            <!-- Stock Management -->
+            <Card>
+                <div class="p-4">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <h2 class="text-lg font-medium">Stock Management</h2>
+                    </div>
+                    <div class="grid grid-cols-4 gap-6">
+                        <!-- Shake -->
+                        <div class="flex flex-col items-center space-y-2">
+                            <CupSoda class="w-20 h-20 text-gray-600" />
+                            <span class="font-medium text-gray-700">Formula 1</span>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.shake = Math.max(0, stockData.shake - 1)"
+                                >
+                                    <MinusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                                <Input
+                                    type="number"
+                                    v-model="stockData.shake"
+                                    class="w-16 text-center"
+                                    min="0"
+                                />
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.shake++"
+                                >
+                                    <PlusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-500">Pieces</span>
+                        </div>
+
+                        <!-- Tea -->
+                        <div class="flex flex-col items-center space-y-2">
+                            <Coffee class="w-20 h-20 text-gray-600" />
+                            <span class="font-medium text-gray-700">Herbal Tea</span>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.tea = Math.max(0, stockData.tea - 1)"
+                                >
+                                    <MinusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                                <Input
+                                    type="number"
+                                    v-model="stockData.tea"
+                                    class="w-16 text-center"
+                                    min="0"
+                                />
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.tea++"
+                                >
+                                    <PlusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-500">Pieces</span>
+                        </div>
+
+                        <!-- Aloe -->
+                        <div class="flex flex-col items-center space-y-2">
+                            <Milk class="w-20 h-20 text-gray-600" />
+                            <span class="font-medium text-gray-700">Aloe Concentrate</span>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.aloe = Math.max(0, stockData.aloe - 1)"
+                                >
+                                    <MinusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                                <Input
+                                    type="number"
+                                    v-model="stockData.aloe"
+                                    class="w-16 text-center"
+                                    min="0"
+                                />
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.aloe++"
+                                >
+                                    <PlusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-500">Pieces</span>
+                        </div>
+
+                        <!-- PDM -->
+                        <div class="flex flex-col items-center space-y-2">
+                            <GlassWater class="w-20 h-20 text-gray-600" />
+                            <span class="font-medium text-gray-700">PDM</span>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.pdm = Math.max(0, stockData.pdm - 1)"
+                                >
+                                    <MinusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                                <Input
+                                    type="number"
+                                    v-model="stockData.pdm"
+                                    class="w-16 text-center"
+                                    min="0"
+                                />
+                                <button
+                                    class="p-1 rounded hover:bg-gray-100 border"
+                                    @click="stockData.pdm++"
+                                >
+                                    <PlusIcon class="w-4 h-4 text-gray-600" />
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-500">Pieces</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <Button
+                            variant="solid"
+                            label="Add Stock"
+                            @click="addStock"
+                        />
+                    </div>
+                </div>
+            </Card>
         </div>
     </div>
     <EditCoachDialog ref="editCoachDialog" />
@@ -115,6 +240,7 @@ import { createDocumentResource, createListResource, Card, Badge, Avatar, Button
 import { useRoute } from 'vue-router';
 import { computed, ref } from 'vue';
 import EditCoachDialog from '@/components/EditCoachDialog.vue';
+import { PlusIcon, MinusIcon, Coffee, Milk, GlassWater, CupSoda } from 'lucide-vue-next';
 
 const route = useRoute();
 
@@ -156,5 +282,17 @@ const editCoachDialog = ref(null);
 
 function handleEditCoach() {
     editCoachDialog.value?.openDialog(coachDoc.value);
+}
+
+const stockData = ref({
+    shake: 0,
+    tea: 0,
+    aloe: 0,
+    pdm: 0
+});
+
+function addStock() {
+    console.log('Adding stock:', stockData.value);
+    // TODO: Implement stock addition logic
 }
 </script>
