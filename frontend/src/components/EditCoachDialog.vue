@@ -125,7 +125,7 @@ const levelOptions = [
 
 const coachesResource = createListResource({
     doctype: 'Coach',
-    fields: ['full_name'],
+    fields: ['full_name', 'id_herbalife'],  // Added id_herbalife
     auto: true
 });
 
@@ -133,7 +133,7 @@ const sponsorOptions = computed(() => {
     if (!coachesResource.list.data) return [];
     return coachesResource.list.data.map(coach => ({
         label: coach.full_name,
-        value: coach.full_name
+        value: coach.id_herbalife  // Changed to use id_herbalife as value
     }));
 });
 
@@ -141,7 +141,7 @@ const editCoachResource = createResource({
     url: 'club360.api.edit_coach',
     makeParams() {
         return {
-            coach_data: formData.value
+            coach: formData.value
         };
     }
 });

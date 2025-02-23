@@ -35,7 +35,7 @@ const routes = [
   },
   {
     name:'CoachDetailsPage',
-    path:'/coaches/:full_name',
+    path:'/coaches/:id_herbalife',
     component: () => import('@/pages/CoachDetailsPage.vue'),
   },
   {

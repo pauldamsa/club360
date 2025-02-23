@@ -136,3 +136,30 @@ def add_new_coach(coach):
 
     new_coach.insert(ignore_permissions=True)
     return new_coach
+
+
+@frappe.whitelist()
+def edit_coach(coach):
+    try:
+        print(frappe.as_json(coach))
+        doc = frappe.get_doc('Coach', {'id_herbalife': coach['id_herbalife']})
+        doc.first_name = coach['first_name']
+        doc.last_name = coach['last_name']
+        doc.full_name = coach['first_name'] + " " + coach['last_name']
+        doc.id_herbalife = coach['id_herbalife']
+        doc.email = coach['email']
+        doc.phone = coach['phone_number']
+        doc.role = coach['role']
+        doc.level = coach['level']
+
+        if isinstance(coach['sponsor'], dict):
+            doc.sponsor = coach['sponsor']['value']
+        else:
+            doc.sponsor = coach['sponsor']
+
+        doc.save(ignore_permissions=True)
+        return doc
+    except frappe.DoesNotExistError:
+        frappe.throw('Coach not found')
+    except Exception as e:
+        frappe.throw(f'Error updating coach: {str(e)}')

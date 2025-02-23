@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:full_name",
+ "autoname": "field:id_herbalife",
  "creation": "2025-02-04 21:01:00.991623",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -27,7 +27,8 @@
    "fieldname": "id_herbalife",
    "fieldtype": "Data",
    "label": "ID Herbalife",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "column_break_oskc",
@@ -81,7 +82,7 @@
   },
   {
    "fieldname": "phone_number",
-   "fieldtype": "Phone",
+   "fieldtype": "Data",
    "label": "Phone Number"
   },
   {
@@ -118,7 +119,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-21 19:33:46.048405",
+ "modified": "2025-02-23 20:38:49.357593",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Coach",

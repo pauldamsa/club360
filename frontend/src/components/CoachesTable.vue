@@ -63,8 +63,7 @@
                             />
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span v-if="coach.sponsor" class="text-gray-500">{{ coach.sponsor }}</span>
-                            <span v-else class="text-gray-500">-</span>
+                            <span class="text-gray-500">{{ getSponsorName(coach.sponsor) }}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <Button
@@ -131,6 +130,22 @@ const coachesResource = createListResource({
     auto: true,
 });
 
+const sponsorsResource = createListResource({
+    doctype: 'Coach',
+    fields: ['id_herbalife', 'full_name'],
+    auto: true
+});
+
+const getSponsorName = computed(() => {
+    const sponsorsMap = {};
+    if (sponsorsResource.list.data) {
+        sponsorsResource.list.data.forEach(coach => {
+            sponsorsMap[coach.id_herbalife] = coach.full_name;
+        });
+    }
+    return (id_herbalife) => sponsorsMap[id_herbalife] || '-';
+});
+
 const coachesList = computed(() => {
     return coachesResource.list.data || [];
 });
@@ -150,7 +165,7 @@ function performSearch() {
 function navigateToDetails(coach) {
     router.push({
         name: 'CoachDetailsPage',
-        params: { full_name: coach.full_name }
+        params: { id_herbalife: coach.id_herbalife }
     });
 }
 

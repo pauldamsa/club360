@@ -126,7 +126,7 @@ const roleOptions = [
 
 const coachesResource = createListResource({
     doctype: 'Coach',
-    fields: ['full_name'],
+    fields: ['full_name', 'id_herbalife'],
     auto: true
 });
 
@@ -143,23 +143,23 @@ const sponsorOptions = computed(() => {
     if (!coachesResource.list.data) return [];
     return coachesResource.list.data.map(coach => ({
         label: coach.full_name,
-        value: coach.full_name
+        value: coach.id_herbalife
     }));
 });
 
 function submitForm() {
     addNewCoach.submit();
-    // showDialog.value = false;
-    // formData.value = {
-    //     first_name: '',
-    //     last_name: '',
-    //     id_herbalife: '',
-    //     level: '',
-    //     email: '',
-    //     role: '',
-    //     sponsor: '',
-    //     phone_number: ''
-    // };
+    showDialog.value = false;
+    formData.value = {
+        first_name: '',
+        last_name: '',
+        id_herbalife: '',
+        level: '',
+        email: '',
+        role: '',
+        sponsor: '',
+        phone_number: ''
+    };
 }
 
 function openDialog() {

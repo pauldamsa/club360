@@ -246,7 +246,7 @@ const route = useRoute();
 
 const coachResource = createDocumentResource({
     doctype: 'Coach',
-    name: route.params.full_name,
+    name: route.params.id_herbalife,
     fields: ['*'],
     auto: true,
 });
@@ -256,21 +256,21 @@ const coachDoc = computed(() => coachResource.doc || {});
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['full_name', 'status', 'source'],
-    filters: { coach: route.params.full_name },
+    filters: { coach: route.params.id_herbalife },
     auto: true
 });
 
 const traineesResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'level', 'role'],
-    filters: { role: 'Trainee', sponsor: route.params.full_name },
+    filters: { role: 'Trainee', sponsor: route.params.id_herbalife },
     auto: true
 });
 
 const juniorPartnersResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'level', 'role'],
-    filters: { role: 'Junior Partner', sponsor: route.params.full_name },
+    filters: { role: 'Junior Partner', sponsor: route.params.id_herbalife },
     auto: true
 });
 
