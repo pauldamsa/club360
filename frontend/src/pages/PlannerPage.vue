@@ -186,6 +186,10 @@ async function exportToPng() {
         activityHeader.textContent = 'Activity';
         activityHeader.style.padding = '8px';
         activityHeader.style.borderBottom = '1px solid #ddd';
+        activityHeader.style.borderRight = '1px solid #ddd';
+        activityHeader.style.borderLeft = '1px solid #ddd';
+        activityHeader.style.borderTop = '1px solid #ddd';
+
         headerRow.appendChild(activityHeader);
         
         // Add day headers
@@ -194,6 +198,9 @@ async function exportToPng() {
             th.innerHTML = `${day.name}<br/><span style="color: #666">${day.date}</span>`;
             th.style.padding = '8px';
             th.style.borderBottom = '1px solid #ddd';
+            th.style.borderRight = '1px solid #ddd';
+            th.style.borderLeft = '1px solid #ddd';
+            th.style.borderTop = '1px solid #ddd';
             headerRow.appendChild(th);
         });
         
@@ -210,6 +217,8 @@ async function exportToPng() {
             tdActivity.textContent = activity;
             tdActivity.style.padding = '8px';
             tdActivity.style.borderBottom = '1px solid #ddd';
+            tdActivity.style.borderRight = '1px solid #ddd';
+            tdActivity.style.borderLeft = '1px solid #ddd';
             tr.appendChild(tdActivity);
             
             // Add data for each day
@@ -217,7 +226,8 @@ async function exportToPng() {
                 const td = document.createElement('td');
                 td.style.padding = '8px';
                 td.style.borderBottom = '1px solid #ddd';
-                
+                td.style.borderRight = '1px solid #ddd';
+
                 if (!activeDays.value[day.date]) {
                     td.textContent = 'Day Off';
                     td.style.backgroundColor = '#f3f4f6';
