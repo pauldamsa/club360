@@ -106,7 +106,8 @@ const formData = ref({
 
 const roleOptions = [
     { label: 'Junior Partner', value: 'Junior Partner' },
-    { label: 'Trainee', value: 'Trainee' }
+    { label: 'Trainee', value: 'Trainee' },
+    { label: 'Club Owner', value: 'Club Owner' }
 ];
 
 const levelOptions = [

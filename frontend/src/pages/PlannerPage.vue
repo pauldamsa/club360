@@ -51,11 +51,12 @@
                         </td>
                         <td v-for="day in weekDays" :key="day.date" class="px-6 py-4">
                             <template v-if="activeDays[day.date]">
-                                <Select
+                                <FormControl
                                     v-if="activity !== 'Shakes Flavours'"
+                                    type="autocomplete"
                                     v-model="plannerData[`${activity}-${day.date}`]"
                                     :options="coachOptions"
-                                    placeholder="Select coach"
+                                    placeholder="Coach"
                                     class="w-full"
                                 />
                                 <textarea
@@ -82,7 +83,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { Button, Select, createListResource, Input, Switch } from 'frappe-ui';
+import { Button, FormControl, createListResource, Input, Switch } from 'frappe-ui';
 import html2canvas from 'html2canvas';
 
 const plannerTable = ref(null);
@@ -235,7 +236,12 @@ async function exportToPng() {
                     td.style.textAlign = 'center';
                 } else {
                     const value = plannerData.value[`${activity}-${day.date}`];
-                    td.textContent = value || '';
+                    // Handle FormControl value object for coaches
+                    if (activity !== 'Shakes Flavours' && value) {
+                        td.textContent = typeof value === 'object' ? value.label || value.value : value;
+                    } else {
+                        td.textContent = value || '';
+                    }
                 }
                 
                 tr.appendChild(td);
