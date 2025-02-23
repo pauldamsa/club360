@@ -9,16 +9,19 @@
             </div>
             <Button 
                 variant="solid" 
-                label="Add Coach" 
+                label="Add Coach"
+                @click="addCoachDialog.openDialog()" 
             />
         </div>
-
         <CoachesTable />
+        <AddCoachDialog ref="addCoachDialog" />
     </div>
-
-    
 </template>
 
 <script setup>
 import CoachesTable from '@/components/CoachesTable.vue';
+import AddCoachDialog from '@/components/AddCoachDialog.vue';
+import { ref } from 'vue';
+
+const addCoachDialog = ref(null);
 </script>

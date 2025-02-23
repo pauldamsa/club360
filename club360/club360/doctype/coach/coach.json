@@ -18,6 +18,7 @@
   "full_name",
   "route",
   "is_published",
+  "status",
   "section_break_clzp",
   "stock"
  ],
@@ -75,7 +76,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Role",
-   "options": "Trainee\nJunior Partner",
+   "options": "Trainee\nJunior Partner\nClub Owner",
    "reqd": 1
   },
   {
@@ -105,13 +106,19 @@
    "fieldtype": "Data",
    "label": "Email",
    "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nInactive"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-20 14:34:15.705040",
+ "modified": "2025-02-21 19:33:46.048405",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Coach",

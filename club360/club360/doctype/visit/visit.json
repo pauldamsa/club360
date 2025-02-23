@@ -7,19 +7,13 @@
  "engine": "InnoDB",
  "field_order": [
   "club_member",
-  "data",
+  "date",
   "type_event",
   "route",
-  "is_published"
+  "is_published",
+  "data"
  ],
  "fields": [
-  {
-   "fieldname": "data",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Date",
-   "reqd": 1
-  },
   {
    "fieldname": "club_member",
    "fieldtype": "Link",
@@ -33,7 +27,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type Event",
-   "options": "Mic dejun\nSport",
+   "options": "Sport\nBreakfast",
    "reqd": 1
   },
   {
@@ -46,13 +40,25 @@
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Is_published?"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "Date",
+   "label": "Data"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-09 12:03:11.129660",
+ "modified": "2025-02-21 19:55:15.510232",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Visit",

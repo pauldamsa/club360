@@ -17,6 +17,7 @@
       <Button
         variant="solid"
         label="Add Coach"
+        @click="addCoachDialog.openDialog()"
       />
     </div>
 
@@ -28,10 +29,12 @@
       <p>Memberships: 300</p>
       <p>Referrals: 20</p>
       <p>Active Coaches: 10</p>
-      
+      <p>Last day visits</p>
+
     </div>
 
     <AddMemberDialog ref="addMemberDialog" @memberAdded="handleMemberAdded" />
+    <AddCoachDialog ref="addCoachDialog" />
   </div>
 </template>
 
@@ -40,8 +43,10 @@ import { ref } from 'vue'
 import { Dialog, Button } from 'frappe-ui'
 import { session } from '../data/session'
 import AddMemberDialog from '@/components/AddMemberDialog.vue'
+import AddCoachDialog from '@/components/AddCoachDialog.vue'
 
 const addMemberDialog = ref(null)
+const addCoachDialog = ref(null)
 
 function handleMemberAdded() {
   // Handle successful member addition

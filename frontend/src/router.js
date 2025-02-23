@@ -38,6 +38,11 @@ const routes = [
     path:'/coaches/:full_name',
     component: () => import('@/pages/CoachDetailsPage.vue'),
   },
+  {
+    name:'VisitsPage',
+    path:'/visits',
+    component: () => import('@/pages/VisitsPage.vue'),
+  },
 ]
 
 let router = createRouter({
