@@ -116,3 +116,23 @@ def delete_club_member_membership(memberships_and_club_member):
         })
     doc.save(ignore_permissions=True)
     return doc
+
+
+@frappe.whitelist()
+def add_new_coach(coach):
+    new_coach = frappe.new_doc('Coach')
+    new_coach.first_name = coach['first_name']
+    new_coach.last_name = coach['last_name']
+    new_coach.full_name = coach['first_name'] + " " + coach['last_name']
+    new_coach.id_herbalife = coach['id_herbalife']
+    new_coach.email = coach['email']
+    new_coach.phone = coach['phone_number']
+    new_coach.role = coach['role']
+
+    if isinstance(coach['sponsor'], dict):
+        new_coach.sponsor = coach['sponsor']['value']
+    else:
+        new_coach.sponsor = coach['sponsor']
+
+    new_coach.insert(ignore_permissions=True)
+    return new_coach

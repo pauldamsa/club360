@@ -78,19 +78,27 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Flavours List -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Available Flavours</h2>
+            <p class="text-gray-600">
+                {{ flavours.join(', ') }}
+            </p>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { Button, FormControl, createListResource, Input, Switch } from 'frappe-ui';
+import { Button, FormControl, createListResource, Input, Switch, Badge } from 'frappe-ui';
 import html2canvas from 'html2canvas';
 
 const plannerTable = ref(null);
 const plannerData = ref({});
 const activeDays = ref({});
 
-const activities = ['Cleaning', 'Shakes', 'Shakes Flavours'];
+const activities = ['Shakes', 'Cleaning', 'Shakes Flavours'];
 
 // Get current week dates
 const weekDays = computed(() => {

@@ -91,7 +91,7 @@
 
 <script setup>
 import { ref, defineExpose, computed } from 'vue';
-import { Dialog, FormControl, createListResource } from 'frappe-ui';
+import { Dialog, FormControl, createListResource, createResource } from 'frappe-ui';
 
 const showDialog = ref(false);
 const formData = ref({
@@ -130,6 +130,15 @@ const coachesResource = createListResource({
     auto: true
 });
 
+const addNewCoach = createResource({
+    url: 'club360.api.add_new_coach',
+    makeParams(){
+        return {
+            coach: formData.value
+        }
+    }
+})
+
 const sponsorOptions = computed(() => {
     if (!coachesResource.list.data) return [];
     return coachesResource.list.data.map(coach => ({
@@ -139,18 +148,18 @@ const sponsorOptions = computed(() => {
 });
 
 function submitForm() {
-    console.log('Form data:', formData.value);
-    showDialog.value = false;
-    formData.value = {
-        first_name: '',
-        last_name: '',
-        id_herbalife: '',
-        level: '',
-        email: '',
-        role: '',
-        sponsor: '',
-        phone_number: ''
-    };
+    addNewCoach.submit();
+    // showDialog.value = false;
+    // formData.value = {
+    //     first_name: '',
+    //     last_name: '',
+    //     id_herbalife: '',
+    //     level: '',
+    //     email: '',
+    //     role: '',
+    //     sponsor: '',
+    //     phone_number: ''
+    // };
 }
 
 function openDialog() {

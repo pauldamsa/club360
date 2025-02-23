@@ -2,7 +2,7 @@
     <div class="p-6">
         <!-- Coach Details Header -->
         <Card class="mb-8">
-            <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-6">
                     <Avatar :label="coachDoc.full_name" size="2xl" class="ring-4 ring-white shadow-lg" />
                     <div class="space-y-3">
@@ -112,7 +112,7 @@
                     <div class="flex items-center space-x-3 mb-4">
                         <h2 class="text-lg font-medium">Stock Management</h2>
                     </div>
-                    <div class="grid grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <!-- Shake -->
                         <div class="flex flex-col items-center space-y-2">
                             <CupSoda class="w-20 h-20 text-gray-600" />
