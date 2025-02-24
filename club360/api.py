@@ -126,7 +126,7 @@ def add_new_coach(coach):
     new_coach.full_name = coach['first_name'] + " " + coach['last_name']
     new_coach.id_herbalife = coach['id_herbalife']
     new_coach.email = coach['email']
-    new_coach.phone = coach['phone_number']
+    new_coach.phone_number = coach['phone_number']
     new_coach.role = coach['role']
 
     if isinstance(coach['sponsor'], dict):

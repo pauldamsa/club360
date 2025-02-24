@@ -51,7 +51,9 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <Badge :label="member.coach" >{{ member.coach }}</Badge>
+                            <Badge :label="coachNameMap[member.coach] || 'No Coach'">
+                                {{ coachNameMap[member.coach] || 'No Coach' }}
+                            </Badge>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ member.status }}
@@ -135,6 +137,24 @@ const deleteResource = createResource({
 
 const showDeleteDialog = ref(false);
 const memberToDelete = ref(null);
+
+// Add coach resource to get mapping
+const coachesResource = createListResource({
+    doctype: 'Coach',
+    fields: ['id_herbalife', 'full_name'],
+    auto: true
+});
+
+// Add coach name mapping
+const coachNameMap = computed(() => {
+    const mapping = {};
+    if (coachesResource.list.data) {
+        coachesResource.list.data.forEach(coach => {
+            mapping[coach.id_herbalife] = coach.full_name;
+        });
+    }
+    return mapping;
+});
 
 function clearSearch() {
     searchTerm.value = '';

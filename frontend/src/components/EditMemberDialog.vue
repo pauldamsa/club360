@@ -22,11 +22,6 @@
         <template #body-content>
             <div class="space-y-4 p-4">
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- <Input 
-                        label="First Name" 
-                        v-model="formData.first_name" 
-                        required 
-                    /> -->
                     <div class="p-2">
                         <FormControl
                             :type="'text'"
@@ -142,13 +137,19 @@ const formData = ref({
 // Watch for memberData changes and update formData
 watch(() => props.memberData, (newData) => {
     if (newData) {
-        formData.value = { ...newData };
+        // If coach is already an id_herbalife, use it directly
+        // If it's an object with value property, use that
+        const coachId = typeof newData.coach === 'object' ? newData.coach.value : newData.coach;
+        formData.value = {
+            ...newData,
+            coach: coachId
+        };
     }
 }, { deep: true });
 
 const coachResource = createListResource({
     doctype: 'Coach',
-    fields: ['full_name'],
+    fields: ['full_name', 'id_herbalife'],  // Added id_herbalife field
     auto: true,
 });
 
@@ -171,8 +172,15 @@ const coachOptions = computed(() => {
     if (!coachResource.list.data) return [];
     return coachResource.list.data.map(coach => ({
         label: coach.full_name,
-        value: coach.full_name
+        value: coach.id_herbalife  // Changed to use id_herbalife as value
     }));
+});
+
+// Add helper computed to get coach name for display
+const selectedCoachName = computed(() => {
+    if (!formData.value.coach || !coachResource.list.data) return '';
+    const coach = coachResource.list.data.find(c => c.id_herbalife === formData.value.coach);
+    return coach?.full_name || '';
 });
 
 const sourceOptions = [

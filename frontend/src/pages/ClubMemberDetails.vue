@@ -31,7 +31,7 @@
                         
                         <div class="text-gray-500">Coach</div>
                         <div>
-                            <Badge :label="clubMemberDoc.coach" />
+                            <Badge :label="coachName" />
                         </div>
                         
                         <div class="text-gray-500">Source</div>
@@ -392,4 +392,17 @@ watch(() => route.params.full_name, (newName) => {
         referralsResource.reload();
     }
 }, { immediate: true });
+
+// Add coach resource for name resolution
+const coachesResource = createListResource({
+    doctype: 'Coach',
+    fields: ['id_herbalife', 'full_name'],
+    auto: true
+});
+
+const coachName = computed(() => {
+    if (!clubMemberDoc.value?.coach || !coachesResource.list.data) return 'No Coach';
+    const coach = coachesResource.list.data.find(c => c.id_herbalife === clubMemberDoc.value.coach);
+    return coach?.full_name || 'No Coach';
+});
 </script>

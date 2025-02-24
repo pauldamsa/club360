@@ -247,12 +247,20 @@ const route = useRoute();
 const coachResource = createDocumentResource({
     doctype: 'Coach',
     name: route.params.id_herbalife,
-    fields: ['*'],
+    ffields: [
+        'full_name',
+        'role',
+        'level',
+        'id_herbalife',
+        'phone_number',  
+        'email',         
+        'sponsor'
+    ],
     auto: true,
 });
 
 const coachDoc = computed(() => coachResource.doc || {});
-
+console.log(coachDoc.value);
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['full_name', 'status', 'source'],

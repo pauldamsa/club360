@@ -107,7 +107,7 @@ const showDialog = ref(false);
 const formData = ref({
     first_name: '',
     last_name: '',
-    coach: '',
+    coach: '',  // This will now store the id_herbalife
     source: '',
     referrals: 0,
     referral_of: ''
@@ -115,7 +115,7 @@ const formData = ref({
 
 const coachResource = createListResource({
     doctype: 'Coach',
-    fields: ['full_name'],
+    fields: ['full_name', 'id_herbalife'],
     auto: true,
 })
 
@@ -127,10 +127,17 @@ const coachList = computed(() => {
 })
 
 const coachOptions = computed(() => {
-    return coachList.value.map(coach => ({
+    if (!coachResource.list.data) return [];
+    return coachResource.list.data.map(coach => ({
         label: coach.full_name,
-        value: coach.full_name
+        value: coach.id_herbalife  // Changed to use id_herbalife as value
     }));
+});
+
+// Add helper computed to get coach name for display
+const selectedCoachName = computed(() => {
+    const coach = coachResource.list.data?.find(c => c.id_herbalife === formData.value.coach);
+    return coach?.full_name || '';
 });
 
 const sourceOptions = [
