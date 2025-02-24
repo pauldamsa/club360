@@ -148,30 +148,52 @@ const sourceOptions = [
     { label: 'Roadshow', value: 'Roadshow' },
 ];
 
-// Add club members resource
+// Update club members resource to include name field
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
-    fields: ['full_name'],
+    fields: ['name', 'full_name'], // Added name field for ID
     auto: true,
 });
 
-// Add computed property for member options
+// Update member options to use name as value
 const memberOptions = computed(() => {
     if (!clubMembersResource.list.data) return [];
     return clubMembersResource.list.data.map(member => ({
         label: member.full_name,
-        value: member.full_name
+        value: member.name  // Using name (ID) as value
     }));
 });
 
 const addNewClubMember = createResource({
     url: 'club360.api.add_new_club_member',
-    makeParams(){
+    makeParams() {
+        const formattedData = {
+            first_name: formData.value.first_name,
+            last_name: formData.value.last_name,
+            coach: formData.value.coach,
+            source: formData.value.source,
+            referrals: formData.value.referrals || 0,
+            referral_of: formData.value.source === 'Referral' ?  formData.value.referral_of  : ''
+        };
         return {
-            club_member: formData.value
-        }
+            club_member: formattedData
+        };
+    },
+    onSuccess: () => {
+        showDialog.value = false;
+        formData.value = {
+            first_name: '',
+            last_name: '',
+            coach: '',
+            source: '',
+            referrals: 0,
+            referral_of: ''
+        };
+    },
+    onError: (error) => {
+        console.error('Error adding member:', error);
     }
-})
+});
 
 function submitForm() {
     // Handle form submission

@@ -38,8 +38,8 @@
                                     />
                                 </div>
                                 <div v-else class="flex items-center">
-                                    <Avatar :label="visit.club_member" size="sm" class="mr-2" />
-                                    <span class="text-sm font-medium">{{ visit.club_member }}</span>
+                                    <Avatar :label="visit.memberName" size="sm" class="mr-2" />
+                                    <span class="text-sm font-medium">{{ visit.memberName }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -104,7 +104,10 @@
                 </table>
             </div>
         </Card>
-        <AddVisitDialog ref="addVisitDialog" />
+        <AddVisitDialog 
+            ref="addVisitDialog" 
+            @visitAdded="handleVisitAdded" 
+        />
     </div>
 </template>
 
@@ -113,7 +116,33 @@ import { ref, computed } from 'vue';
 import { Button, Card, Avatar, Badge, createListResource, Input, Select } from 'frappe-ui';
 import AddVisitDialog from '@/components/AddVisitDialog.vue';
 
-// Visits resource
+// Add club members resource for name mapping
+const clubMembersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name'],
+    auto: true
+});
+
+// Create mapping for member names
+const memberNames = computed(() => {
+    const mapping = {};
+    if (clubMembersResource.list.data) {
+        clubMembersResource.list.data.forEach(member => {
+            mapping[member.name] = member.full_name;
+        });
+    }
+    return mapping;
+});
+
+// Club member options for select
+const clubMemberOptions = computed(() => {
+    if (!clubMembersResource.list.data) return [];
+    return clubMembersResource.list.data.map(member => ({
+        label: member.full_name,
+        value: member.name
+    }));
+});
+
 const visitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'club_member', 'date', 'type_event'],
@@ -123,11 +152,14 @@ const visitsResource = createListResource({
 
 const visitsList = computed(() => visitsResource.list.data || []);
 
-// Sort visits with newest first
+// Update sorted visits to include member names
 const sortedVisits = computed(() => {
-    return [...visitsList.value].sort((a, b) => 
-        new Date(b.date) - new Date(a.date)
-    );
+    return [...visitsList.value]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map(visit => ({
+            ...visit,
+            memberName: memberNames.value[visit.club_member] || visit.club_member
+        }));
 });
 
 const editingVisit = ref(null);
@@ -146,6 +178,11 @@ function formatDate(date) {
 
 function handleAddVisit() {
     addVisitDialog.value?.openDialog();
+}
+
+function handleVisitAdded() {
+    // Reload visits list
+    visitsResource.reload();
 }
 
 function handleEditVisit(visit) {

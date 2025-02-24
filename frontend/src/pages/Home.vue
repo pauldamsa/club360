@@ -8,6 +8,18 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card class="cursor-pointer hover:shadow-lg transition-shadow">
+                <div class="p-4 flex items-center space-x-4">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <CheckSquare class="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Add Visits</h3>
+                        <p class="text-sm text-gray-500">Record member visits</p>
+                    </div>
+                </div>
+            </Card>
+            
             <Card @click="addMemberDialog.openDialog()" class="cursor-pointer hover:shadow-lg transition-shadow">
                 <div class="p-4 flex items-center space-x-4">
                     <div class="p-3 bg-blue-100 rounded-lg">
@@ -16,18 +28,6 @@
                     <div>
                         <h3 class="font-medium">Add Member</h3>
                         <p class="text-sm text-gray-500">Register a new club member</p>
-                    </div>
-                </div>
-            </Card>
-
-            <Card class="cursor-pointer hover:shadow-lg transition-shadow">
-                <div class="p-4 flex items-center space-x-4">
-                    <div class="p-3 bg-green-100 rounded-lg">
-                        <CheckSquare class="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                        <h3 class="font-medium">Add Visits</h3>
-                        <p class="text-sm text-gray-500">Record member visits</p>
                     </div>
                 </div>
             </Card>
@@ -81,18 +81,26 @@
             </Card>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- Today's Visits -->
         <Card>
             <div class="p-4">
-                <h2 class="text-lg font-medium mb-4">Recent Activity</h2>
+                <h2 class="text-lg font-medium mb-4">Today's Visits</h2>
                 <div class="space-y-4">
-                    <div v-for="(activity, index) in recentActivities" :key="index" class="flex items-center space-x-4">
-                        <div class="p-2 rounded-full" :class="activity.bgColor">
-                            <component :is="activity.icon" class="w-4 h-4" :class="activity.iconColor" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium">{{ activity.text }}</p>
-                            <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                    <div v-if="todayVisits.length === 0" class="text-center text-gray-500 py-4">
+                        No visits recorded today
+                    </div>
+                    <div v-else class="divide-y divide-gray-100">
+                        <div v-for="visit in formattedVisits" :key="visit.name" class="flex items-center justify-between py-3">
+                            <div class="flex items-center space-x-3">
+                                <Avatar :label="memberNames[visit.club_member] || visit.club_member" size="sm" />
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ memberNames[visit.club_member] || visit.club_member }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{ formatTime(visit.date) }}</p>
+                                </div>
+                            </div>
+                            <Badge :label="visit.type_event" variant="solid" class="bg-green-100 text-green-800" />
                         </div>
                     </div>
                 </div>
@@ -105,39 +113,57 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Card, Dialog, Button } from 'frappe-ui';
+import { ref, computed } from 'vue';
+import { Card, Dialog, Button, Avatar, Badge, createListResource } from 'frappe-ui';
 import { session } from '../data/session';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
 import AddCoachDialog from '@/components/AddCoachDialog.vue';
 import { UserPlus, CheckSquare, Users, Activity, CreditCard } from 'lucide-vue-next';
+import { formatDistance } from 'date-fns';
 
 const addMemberDialog = ref(null);
 const addCoachDialog = ref(null);
 
-const recentActivities = [
-    {
-        icon: CheckSquare,
-        text: 'John Doe completed their visit',
-        time: '2 minutes ago',
-        bgColor: 'bg-green-100',
-        iconColor: 'text-green-600'
-    },
-    {
-        icon: UserPlus,
-        text: 'New member Jane Smith registered',
-        time: '1 hour ago',
-        bgColor: 'bg-blue-100',
-        iconColor: 'text-blue-600'
-    },
-    {
-        icon: CreditCard,
-        text: 'Mike Johnson renewed membership',
-        time: '3 hours ago',
-        bgColor: 'bg-purple-100',
-        iconColor: 'text-purple-600'
+// Add members resource to get names
+const membersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name'],
+    auto: true
+});
+
+// Create mapping for member names
+const memberNames = computed(() => {
+    const mapping = {};
+    if (membersResource.list.data) {
+        membersResource.list.data.forEach(member => {
+            mapping[member.name] = member.full_name;
+        });
     }
-];
+    return mapping;
+});
+
+const visitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name', 'club_member', 'type_event', 'date'],
+    filters: {
+        date: ['>=', new Date().toISOString().split('T')[0]]
+    },
+    orderBy: 'date desc',
+    auto: true
+});
+
+const todayVisits = computed(() => visitsResource.list.data || []);
+
+const formattedVisits = computed(() => {
+    return todayVisits.value.map(visit => ({
+        ...visit,
+        date: new Date(visit.date)
+    }));
+});
+
+function formatTime(date) {
+    return formatDistance(date, new Date(), { addSuffix: true });
+}
 
 function handleMemberAdded() {
     // Handle successful member addition

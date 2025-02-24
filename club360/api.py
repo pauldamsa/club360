@@ -2,14 +2,16 @@ import frappe
 
 @frappe.whitelist()
 def add_new_club_member(club_member):
+    print(frappe.as_json(club_member))
+    print("-------------------")
     new_club_member = frappe.new_doc('Club Member')
 
     if club_member['source'] == 'Referral':
-        referral_name = club_member['referral_of']['value']
-        club_member_to_update_referrals_number = frappe.get_doc('Club Member', referral_name)
+        referral_id = club_member['referral_of']['value']
+        club_member_to_update_referrals_number = frappe.get_doc('Club Member', referral_id)
         club_member_to_update_referrals_number.referrals += 1
         club_member_to_update_referrals_number.save(ignore_permissions=True)
-        
+       
     new_club_member.first_name = club_member['first_name']
     new_club_member.last_name = club_member['last_name']
     new_club_member.coach = club_member['coach']['value']
@@ -18,13 +20,14 @@ def add_new_club_member(club_member):
     new_club_member.status = 'Active'
     new_club_member.refferals = 0
     new_club_member.referral_of = club_member['referral_of']['value'] if club_member['source'] == 'Referral' else ''
-
+    
     new_club_member.set('memberships', [{
         'type': '10 visits',
         'start_date': frappe.utils.getdate(frappe.utils.today()).strftime('%Y-%m-%d'),
         'end_date': (frappe.utils.getdate(frappe.utils.today()) + frappe.utils.datetime.timedelta(days=30)).strftime('%Y-%m-%d'),
         'remaining_visits': 10
     }])
+    print(frappe.as_json(new_club_member))
     new_club_member.insert(ignore_permissions=True)
     return new_club_member
 
@@ -169,3 +172,28 @@ def edit_coach(coach):
         frappe.throw('Coach not found')
     except Exception as e:
         frappe.throw(f'Error updating coach: {str(e)}')
+
+@frappe.whitelist()
+def add_visit(visit_data):
+    try:
+        print(frappe.as_json(visit_data))
+        new_visit = frappe.new_doc('Visit')
+        new_visit.club_member = visit_data['club_member']['value']
+        new_visit.date = visit_data['date']
+        new_visit.type_event = visit_data['type_event']
+        
+        new_visit.insert(ignore_permissions=True)
+        
+        # Update membership remaining visits if type is Sport
+        # if visit_data['type_event'] == 'Sport':
+        #     club_member = frappe.get_doc('Club Member', visit_data['club_member'])
+        #     if club_member.memberships:
+        #         active_membership = club_member.memberships[-1]  # Get latest membership
+        #         if active_membership.remaining_visits > 0:
+        #             active_membership.remaining_visits -= 1
+        #             club_member.save(ignore_permissions=True)
+        
+        return new_visit
+        
+    except Exception as e:
+        frappe.throw(f'Error adding visit: {str(e)}')
