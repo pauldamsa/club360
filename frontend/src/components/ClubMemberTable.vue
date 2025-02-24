@@ -119,6 +119,11 @@ const clubMemberResource = createListResource({
     auto: true,
 });
 
+// Expose the resource for parent component
+defineExpose({
+    clubMemberResource
+});
+
 const clubMemberList = computed(() => {
     if (clubMemberResource.list.data) {
         return clubMemberResource.list.data;

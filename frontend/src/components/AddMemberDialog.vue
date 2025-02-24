@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, defineExpose, computed } from 'vue';
+import { ref, defineExpose, computed, defineEmits } from 'vue';
 import { Dialog, createListResource, FormControl, createResource } from 'frappe-ui';
 
 const showDialog = ref(false);
@@ -164,6 +164,8 @@ const memberOptions = computed(() => {
     }));
 });
 
+const emit = defineEmits(['memberAdded']);
+
 const addNewClubMember = createResource({
     url: 'club360.api.add_new_club_member',
     makeParams() {
@@ -189,6 +191,7 @@ const addNewClubMember = createResource({
             referrals: 0,
             referral_of: ''
         };
+        emit('memberAdded'); // Emit event when member is added successfully
     },
     onError: (error) => {
         console.error('Error adding member:', error);

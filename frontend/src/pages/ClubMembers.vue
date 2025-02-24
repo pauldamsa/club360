@@ -49,7 +49,11 @@ const memberCount = computed(() => {
 });
 
 function handleMemberAdded() {
-    memberTable.value?.clubMemberResource.reload();
+    // Reload both resources to ensure fresh data
+    clubMemberResource.reload();
+    if (memberTable.value) {
+        memberTable.value.clubMemberResource.reload();
+    }
 }
 
 </script>
