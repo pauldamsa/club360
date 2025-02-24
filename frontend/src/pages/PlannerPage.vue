@@ -25,58 +25,60 @@
         </div>
 
         <!-- Planner Table -->
-        <div ref="plannerTable" class="bg-white rounded-lg shadow">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">Activity</th>
-                        <th v-for="day in weekDays" :key="day.date" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    {{ day.name }}<br>
-                                    <span class="text-gray-400">{{ day.date }}</span>
+        <div class="overflow-x-auto">  <!-- Added this wrapper div -->
+            <div ref="plannerTable" class="bg-white rounded-lg shadow min-w-[800px]">  <!-- Added min-width -->
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">Activity</th>
+                            <th v-for="day in weekDays" :key="day.date" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        {{ day.name }}<br>
+                                        <span class="text-gray-400">{{ day.date }}</span>
+                                    </div>
+                                    <Switch 
+                                        v-model="activeDays[day.date]"
+                                        class="ml-2"
+                                    />
                                 </div>
-                                <Switch 
-                                    v-model="activeDays[day.date]"
-                                    class="ml-2"
-                                />
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="activity in activities" :key="activity">
-                        <td class="px-6 py-4">
-                            {{ activity }}
-                        </td>
-                        <td v-for="day in weekDays" :key="day.date" class="px-6 py-4">
-                            <template v-if="activeDays[day.date]">
-                                <FormControl
-                                    v-if="activity !== 'Shakes Flavours'"
-                                    type="autocomplete"
-                                    v-model="plannerData[`${activity}-${day.date}`]"
-                                    :options="coachOptions"
-                                    placeholder="Coach"
-                                    class="w-full"
-                                />
-                                <textarea
-                                    v-else
-                                    v-model="plannerData[`${activity}-${day.date}`]"
-                                    placeholder="Enter flavours"
-                                    class="w-full min-h-[60px] p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    rows="2"
-                                ></textarea>
-                            </template>
-                            <div 
-                                v-else 
-                                class="h-full w-full flex items-center justify-center text-gray-500 bg-gray-50 rounded py-2"
-                            >
-                                Day Off
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr v-for="activity in activities" :key="activity">
+                            <td class="px-6 py-4">
+                                {{ activity }}
+                            </td>
+                            <td v-for="day in weekDays" :key="day.date" class="px-6 py-4">
+                                <template v-if="activeDays[day.date]">
+                                    <FormControl
+                                        v-if="activity !== 'Shakes Flavours'"
+                                        type="autocomplete"
+                                        v-model="plannerData[`${activity}-${day.date}`]"
+                                        :options="coachOptions"
+                                        placeholder="Coach"
+                                        class="w-full"
+                                    />
+                                    <textarea
+                                        v-else
+                                        v-model="plannerData[`${activity}-${day.date}`]"
+                                        placeholder="Enter flavours"
+                                        class="w-full min-h-[60px] p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        rows="2"
+                                    ></textarea>
+                                </template>
+                                <div 
+                                    v-else 
+                                    class="h-full w-full flex items-center justify-center text-gray-500 bg-gray-50 rounded py-2"
+                                >
+                                    Day Off
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Flavours List -->
