@@ -103,19 +103,25 @@ def delete_club_member(club_member):
 
 @frappe.whitelist()
 def delete_club_member_membership(memberships_and_club_member):
-    memberships = memberships_and_club_member['memberships']
-    club_member = memberships_and_club_member['club_member']
-    doc = frappe.get_doc('Club Member', club_member['full_name'])
-    doc.memberships = []
-    for membership in memberships:
-        doc.append('memberships', {
-            'type': membership['type'],
-            'start_date': membership['start_date'],
-            'end_date': membership['end_date'],
-            'remaining_visits': membership['remaining_visits']
-        })
-    doc.save(ignore_permissions=True)
-    return doc
+    try:
+        memberships = memberships_and_club_member['memberships']
+        club_member_name = memberships_and_club_member['club_member']['name']  # Get the name from the club member object
+        
+        doc = frappe.get_doc('Club Member', club_member_name)
+        doc.memberships = []
+        
+        for membership in memberships:
+            doc.append('memberships', {
+                'type': membership['type'],
+                'start_date': membership['start_date'],
+                'end_date': membership['end_date'],
+                'remaining_visits': membership['remaining_visits']
+            })
+            
+        doc.save(ignore_permissions=True)
+        return doc
+    except Exception as e:
+        frappe.throw(str(e))
 
 
 @frappe.whitelist()

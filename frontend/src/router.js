@@ -20,7 +20,7 @@ const routes = [
   },
   {
     name:'ClubMemberDetailsPage',
-    path:'/club-members/:full_name',
+    path:'/club-members/:id_club_member',
     component: () => import('@/pages/ClubMemberDetails.vue'),
   },
   {

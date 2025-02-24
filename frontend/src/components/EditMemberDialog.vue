@@ -155,19 +155,51 @@ const coachResource = createListResource({
 
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
-    fields: ['full_name'],
+    fields: ['name', 'full_name'],  // Added name field
     auto: true,
 });
 
-// Add computed property for member options
+// Add referral name mapping
+const referralNameMap = computed(() => {
+    const mapping = {};
+    if (clubMembersResource.list.data) {
+        clubMembersResource.list.data.forEach(member => {
+            mapping[member.name] = member.full_name;
+        });
+    }
+    return mapping;
+});
+
+// Update member options to show full_name while using name as value
 const memberOptions = computed(() => {
     if (!clubMembersResource.list.data) return [];
     return clubMembersResource.list.data.map(member => ({
         label: member.full_name,
-        value: member.full_name
+        value: member.name  // Using name as value
     }));
 });
 
+// Add helper computed to get referral name for display
+const selectedReferralName = computed(() => {
+    if (!formData.value.referral_of) return '';
+    return referralNameMap.value[formData.value.referral_of] || '';
+});
+
+// Watch to handle member data properly
+watch(() => props.memberData, (newData) => {
+    if (newData) {
+        // If referral_of is an object, use its value, otherwise use directly
+        const referralId = typeof newData.referral_of === 'object' ? 
+            newData.referral_of.value : newData.referral_of;
+        
+        formData.value = {
+            ...newData,
+            referral_of: referralId
+        };
+    }
+}, { deep: true });
+
+// Add computed property for coach options
 const coachOptions = computed(() => {
     if (!coachResource.list.data) return [];
     return coachResource.list.data.map(coach => ({

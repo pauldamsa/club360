@@ -168,7 +168,7 @@ function performSearch() {
 function navigateToDetails(member) {
     router.push({
         name: 'ClubMemberDetailsPage',
-        params: { full_name: member.full_name }
+        params: { id_club_member: member.name }
     });
 }
 

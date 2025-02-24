@@ -40,7 +40,7 @@
                         <template v-if="clubMemberDoc.source === 'Referral'">
                             <div class="text-gray-500">Referral of</div>
                             <div>
-                                <Badge :label="clubMemberDoc.referral_of" />
+                                <Badge :label="referralName" />
                             </div>
                         </template>
                         
@@ -187,7 +187,7 @@
         </div>
     </div>
     <!-- Delete Confirmation Dialog -->
-    <Dialog
+    <!--<Dialog
         :options="{
             title: 'Delete Member',
             actions: [
@@ -210,7 +210,7 @@
                 Are you sure you want to delete {{ memberToDelete?.full_name }}?
             </p>
         </template>
-    </Dialog>
+    </Dialog> -->
     <EditMemberDialog ref="editMemberDialog" />
 
     <!-- Membership Delete Dialog -->
@@ -263,7 +263,7 @@ const route = useRoute();
 
 const clubMemberResource = createDocumentResource({
     doctype: 'Club Member',
-    name: route.params.full_name,
+    name: route.params.id_club_member,
     fields: ['*'],
     auto: true,
 })
@@ -374,7 +374,7 @@ const referralsResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name', 'status'],
     filters: {
-        referral_of: route.params.full_name
+        referral_of: route.params.id_club_member
     },
     auto: true,
     transform(data) {
@@ -404,5 +404,19 @@ const coachName = computed(() => {
     if (!clubMemberDoc.value?.coach || !coachesResource.list.data) return 'No Coach';
     const coach = coachesResource.list.data.find(c => c.id_herbalife === clubMemberDoc.value.coach);
     return coach?.full_name || 'No Coach';
+});
+
+// Add member resource for referral name resolution
+const membersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name'],
+    auto: true
+});
+
+// Add computed for referral name
+const referralName = computed(() => {
+    if (!clubMemberDoc.value?.referral_of || !membersResource.list.data) return 'No Referral';
+    const referral = membersResource.list.data.find(m => m.name === clubMemberDoc.value.referral_of);
+    return referral?.full_name || 'No Referral';
 });
 </script>
