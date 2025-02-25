@@ -2,8 +2,6 @@ import frappe
 
 @frappe.whitelist()
 def add_new_club_member(club_member):
-    print(frappe.as_json(club_member))
-    print("-------------------")
     new_club_member = frappe.new_doc('Club Member')
 
     if club_member['source'] == 'Referral':
@@ -27,7 +25,6 @@ def add_new_club_member(club_member):
         'end_date': (frappe.utils.getdate(frappe.utils.today()) + frappe.utils.datetime.timedelta(days=30)).strftime('%Y-%m-%d'),
         'remaining_visits': 10
     }])
-    print(frappe.as_json(new_club_member))
     new_club_member.insert(ignore_permissions=True)
     return new_club_member
 
@@ -150,7 +147,6 @@ def add_new_coach(coach):
 @frappe.whitelist()
 def edit_coach(coach):
     try:
-        print(frappe.as_json(coach))
         doc = frappe.get_doc('Coach', {'id_herbalife': coach['id_herbalife']})
         doc.first_name = coach['first_name']
         doc.last_name = coach['last_name']
@@ -176,7 +172,6 @@ def edit_coach(coach):
 @frappe.whitelist()
 def add_visit(visit_data):
     try:
-        print(frappe.as_json(visit_data))
         new_visit = frappe.new_doc('Visit')
         new_visit.club_member = visit_data['club_member']['value']
         new_visit.date = visit_data['date']
@@ -185,15 +180,40 @@ def add_visit(visit_data):
         new_visit.insert(ignore_permissions=True)
         
         # Update membership remaining visits if type is Sport
-        # if visit_data['type_event'] == 'Sport':
-        #     club_member = frappe.get_doc('Club Member', visit_data['club_member'])
-        #     if club_member.memberships:
-        #         active_membership = club_member.memberships[-1]  # Get latest membership
-        #         if active_membership.remaining_visits > 0:
-        #             active_membership.remaining_visits -= 1
-        #             club_member.save(ignore_permissions=True)
+        # club_member = frappe.get_doc('Club Member', visit_data['club_member']['value'])
+        # if club_member.memberships:
+        #     active_membership = club_member.memberships[-1]  # Get latest membership
+        #     if active_membership.remaining_visits > 0:
+        #         active_membership.remaining_visits -= 1
+        #         # Update status based on remaining visits
+        #         if active_membership.remaining_visits == 0:
+        #             club_member.status = "Inactive"
+        #         club_member.save(ignore_permissions=True)
         
         return new_visit
         
     except Exception as e:
         frappe.throw(f'Error adding visit: {str(e)}')
+
+@frappe.whitelist()
+def delete_visit(visit):
+    try:
+        doc = frappe.get_doc('Visit', visit.get('name'))
+        doc_name = doc.name
+        
+        # restore the visit count
+        club_member = frappe.get_doc('Club Member', doc.club_member)
+        if club_member.memberships:
+            active_membership = club_member.memberships[-1]
+            active_membership.remaining_visits += 1
+            club_member.save(ignore_permissions=True)
+        
+        # Delete the visit
+        doc.delete(ignore_permissions=True)
+        frappe.db.commit()
+        
+        return {"message": f"Visit {doc_name} deleted successfully"}
+    except frappe.DoesNotExistError:
+        frappe.throw('Visit not found')
+    except Exception as e:
+        frappe.throw(f'Error deleting visit: {str(e)}')

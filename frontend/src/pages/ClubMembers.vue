@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { createListResource } from 'frappe-ui';
 import ClubMemberTable from '@/components/ClubMemberTable.vue';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
@@ -49,10 +49,19 @@ const memberCount = computed(() => {
 });
 
 function handleMemberAdded() {
-    // Reload both resources to ensure fresh data
+    // Only reload the main resource
     clubMemberResource.reload();
-    if (memberTable.value) {
+    
+    // Reload the table component if it exists and has a reload method
+    if (memberTable.value?.clubMemberResource?.reload) {
         memberTable.value.clubMemberResource.reload();
+    } else {
+        // Force a re-render of the table component
+        nextTick(() => {
+            if (memberTable.value?.clubMemberResource?.reload) {
+                memberTable.value.clubMemberResource.reload();
+            }
+        });
     }
 }
 

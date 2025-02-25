@@ -17,11 +17,14 @@ class Visit(WebsiteGenerator):
 		valid_membership_found = False
 		
 		for membership in club_member.memberships:
+
 			if membership.remaining_visits > 0 and frappe.utils.getdate(membership.end_date) >= today:
 				membership.remaining_visits -= 1
+				if membership.remaining_visits == 0:
+					club_member.status = "Inactive"
 				valid_membership_found = True
 				break
-		
+
 		if not valid_membership_found:
 			frappe.throw("There is no valid membership for this club member")
 			

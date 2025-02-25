@@ -260,7 +260,7 @@ const coachResource = createDocumentResource({
 });
 
 const coachDoc = computed(() => coachResource.doc || {});
-console.log(coachDoc.value);
+
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['full_name', 'status', 'source'],

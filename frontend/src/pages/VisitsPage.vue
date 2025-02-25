@@ -108,12 +108,43 @@
             ref="addVisitDialog" 
             @visitAdded="handleVisitAdded" 
         />
+
+        <!-- Delete Confirmation Dialog -->
+        <Dialog
+            :options="{
+                title: 'Delete Visit',
+                actions: [
+                    {
+                        label: 'Cancel',
+                        variant: 'outline',
+                        onClick: () => showDeleteDialog = false
+                    },
+                    {
+                        label: 'Delete',
+                        variant: 'danger',
+                        onClick: confirmDeleteVisit
+                    }
+                ]
+            }"
+            v-model="showDeleteDialog"
+        >
+            <template #body-content>
+                <p class="text-gray-600">
+                    Are you sure you want to delete this visit?
+                </p>
+                <div class="mt-2 text-sm text-gray-500">
+                    <p>Member: {{ visitToDelete?.memberName }}</p>
+                    <p>Date: {{ formatDate(visitToDelete?.date) }}</p>
+                    <p>Type: {{ visitToDelete?.type_event }}</p>
+                </div>
+            </template>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Button, Card, Avatar, Badge, createListResource, Input, Select } from 'frappe-ui';
+import { Button, Card, Avatar, Badge, createListResource, Input, Select, createResource, Dialog } from 'frappe-ui';
 import AddVisitDialog from '@/components/AddVisitDialog.vue';
 
 // Add club members resource for name mapping
@@ -150,6 +181,14 @@ const visitsResource = createListResource({
     auto: true
 });
 
+
+const deleteVisit = createResource({
+    url: 'club360.api.delete_visit',
+    makeParams: (values) => ({
+        visit: editableVisit.value
+    })
+});
+
 const visitsList = computed(() => visitsResource.list.data || []);
 
 // Update sorted visits to include member names
@@ -171,6 +210,24 @@ const typeOptions = [
 ];
 
 const addVisitDialog = ref(null);
+
+const showDeleteDialog = ref(false);
+const visitToDelete = ref(null);
+
+// Add delete visit resource
+const deleteVisitResource = createResource({
+    url: 'club360.api.delete_visit',
+    makeParams() {
+        return {
+            visit: visitToDelete.value
+        };
+    },
+    onSuccess() {
+        showDeleteDialog.value = false;
+        visitToDelete.value = null;
+        visitsResource.reload();
+    }
+});
 
 function formatDate(date) {
     return new Date(date).toLocaleDateString();
@@ -206,7 +263,12 @@ function handleCancelEdit() {
 }
 
 function handleDeleteVisit(visit) {
-    // TODO: Implement delete visit confirmation
-    console.log('Delete visit:', visit);
+    visitToDelete.value = visit;
+    showDeleteDialog.value = true;
+}
+
+function confirmDeleteVisit() {
+    if (!visitToDelete.value) return;
+    deleteVisitResource.submit();
 }
 </script>
