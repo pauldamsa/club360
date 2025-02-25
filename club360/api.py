@@ -206,6 +206,8 @@ def delete_visit(visit):
         if club_member.memberships:
             active_membership = club_member.memberships[-1]
             active_membership.remaining_visits += 1
+            if active_membership.remaining_visits == 1:
+                club_member.status = "Active"
             club_member.save(ignore_permissions=True)
         
         # Delete the visit
