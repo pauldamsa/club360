@@ -13,7 +13,7 @@
                     label: 'Save Changes',
                     variant: 'solid',
                     onClick: submitForm,
-                    loading: false
+                    disabled: !isFormValid
                 }
             ]
         }"
@@ -24,26 +24,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-2">
                         <FormControl
-                            :type="'text'"
-                            :ref_for="true"
+                            type="text"
                             size="sm"
                             variant="subtle"
                             placeholder="John"
-                            :disabled="false"
                             label="First Name"
                             v-model="formData.first_name"
+                            required
+                            :error="errors.first_name"
                         />
                     </div>
                     <div class="p-2">
                         <FormControl
-                            :type="'text'"
-                            :ref_for="true"
+                            type="text"
                             size="sm"
                             variant="subtle"
-                            placeholder="John"
-                            :disabled="false"
+                            placeholder="Doe"
                             label="Last Name"
                             v-model="formData.last_name"
+                            required
+                            :error="errors.last_name"
                         />
                     </div>
                 </div>
@@ -54,9 +54,10 @@
                         size="sm"
                         variant="subtle"
                         placeholder="Select a coach"
-                        :disabled="false"
                         label="Coach"
                         v-model="formData.coach"
+                        required
+                        :error="errors.coach"
                     />
                 </div>
                 <div class="p-2">
@@ -65,10 +66,11 @@
                         :options="sourceOptions"
                         size="sm"
                         variant="subtle"
-                        placeholder="Select the source of the member" 
-                        :disabled="false"
+                        placeholder="Select the source"
                         label="Source"
                         v-model="formData.source"
+                        required
+                        :error="errors.source"
                     />
                 </div>
                 <div class="p-2">
@@ -132,6 +134,20 @@ const formData = ref({
     referrals: 0,
     status: '',
     referral_of: ''
+});
+
+const errors = ref({
+    first_name: '',
+    last_name: '',
+    coach: '',
+    source: '',
+});
+
+const isFormValid = computed(() => {
+    return formData.value.first_name && 
+           formData.value.last_name && 
+           formData.value.coach && 
+           formData.value.source;
 });
 
 // Watch for memberData changes and update formData
@@ -229,8 +245,37 @@ const statusOptions = [
 ];
 
 function submitForm() {
-    // console.log('Saving changes:', formData.value);
-    editClubMember.submit()
+    // Reset errors
+    errors.value = {
+        first_name: '',
+        last_name: '',
+        coach: '',
+        source: '',
+    };
+
+    // Validate fields
+    let isValid = true;
+    if (!formData.value.first_name) {
+        errors.value.first_name = 'First name is required';
+        isValid = false;
+    }
+    if (!formData.value.last_name) {
+        errors.value.last_name = 'Last name is required';
+        isValid = false;
+    }
+    if (!formData.value.coach) {
+        errors.value.coach = 'Coach is required';
+        isValid = false;
+    }
+    if (!formData.value.source) {
+        errors.value.source = 'Source is required';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Proceed with form submission
+    editClubMember.submit();
     showDialog.value = false;
 }
 
