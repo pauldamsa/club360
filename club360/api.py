@@ -219,3 +219,20 @@ def delete_visit(visit):
         frappe.throw('Visit not found')
     except Exception as e:
         frappe.throw(f'Error deleting visit: {str(e)}')
+
+@frappe.whitelist()
+def edit_visit(visit_data):
+    try:
+        doc = frappe.get_doc('Visit', visit_data['name'])
+        # print(frappe.as_json(doc))
+        doc.club_member = visit_data['club_member']
+        # doc.data = visit_data['date']
+        doc.date = visit_data['date'] 
+        doc.type_event = visit_data['type_event']
+        # print(frappe.as_json(doc))
+        doc.save(ignore_permissions=True)
+        return doc
+    except frappe.DoesNotExistError:
+        frappe.throw('Visit not found')
+    except Exception as e:
+        frappe.throw(f'Error updating visit: {str(e)}')

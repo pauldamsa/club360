@@ -120,6 +120,7 @@
                                             icon="check"
                                             size="sm"
                                             @click="handleSaveVisit"
+                                            :loading="editVisitResource.loading"
                                         />
                                         <Button
                                             variant="outline"
@@ -329,6 +330,24 @@ const deleteVisitResource = createResource({
     }
 });
 
+// Add edit visit resource
+const editVisitResource = createResource({
+    url: 'club360.api.edit_visit',
+    makeParams() {
+        return {
+            visit_data: editableVisit.value
+        };
+    },
+    onSuccess() {
+        editingVisit.value = null;
+        editableVisit.value = null;
+        visitsResource.reload();
+    },
+    onError: (error) => {
+        console.error('Error editing visit:', error);
+    }
+});
+
 function formatDate(date) {
     return new Date(date).toLocaleDateString();
 }
@@ -349,6 +368,9 @@ function handleEditVisit(visit) {
 
 function handleSaveVisit() {
     // TODO: Implement API call
+    if (!editableVisit.value) return;
+    editVisitResource.submit();
+
     const index = sortedVisits.value.findIndex(v => v.name === editingVisit.value);
     if (index !== -1) {
         sortedVisits.value[index] = { ...editableVisit.value };
