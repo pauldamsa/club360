@@ -12,7 +12,8 @@
                 {
                     label: 'Add Coach',
                     variant: 'solid',
-                    onClick: submitForm
+                    onClick: submitForm,
+                    disabled: !isFormValid
                 }
             ]
         }"
@@ -27,12 +28,16 @@
                         label="First Name"
                         v-model="formData.first_name"
                         placeholder="John"
+                        required
+                        :error="errors.first_name"
                     />
                     <FormControl
                         type="text"
                         label="Last Name"
                         v-model="formData.last_name"
                         placeholder="Doe"
+                        required
+                        :error="errors.last_name"
                     />
                 </div>
 
@@ -43,12 +48,16 @@
                         label="ID Herbalife"
                         v-model="formData.id_herbalife"
                         placeholder="123456789"
+                        required
+                        :error="errors.id_herbalife"
                     />
                     <FormControl
                         type="select"
                         label="Level"
                         v-model="formData.level"
                         :options="levelOptions"
+                        required
+                        :error="errors.level"
                     />
                 </div>
 
@@ -58,13 +67,17 @@
                         type="email"
                         label="Email"
                         v-model="formData.email"
-                        placeholder="coach@example.com"
+                        placeholder="coach@gmail.com"
+                        required
+                        :error="errors.email"
                     />
                     <FormControl
                         type="tel"
                         label="Phone Number"
                         v-model="formData.phone_number"
-                        placeholder="+40 123 456 789"
+                        placeholder="0763 456 789"
+                        required
+                        :error="errors.phone_number"
                     />
                 </div>
 
@@ -75,6 +88,8 @@
                         label="Role"
                         v-model="formData.role"
                         :options="roleOptions"
+                        required
+                        :error="errors.role"
                     />
                     <FormControl
                         type="autocomplete"
@@ -93,6 +108,8 @@
 import { ref, defineExpose, computed } from 'vue';
 import { Dialog, FormControl, createListResource, createResource } from 'frappe-ui';
 
+const emit = defineEmits(['coachAdded']);
+
 const showDialog = ref(false);
 const formData = ref({
     first_name: '',
@@ -103,6 +120,26 @@ const formData = ref({
     role: '',
     sponsor: '',
     phone_number: ''
+});
+
+const errors = ref({
+    first_name: '',
+    last_name: '',
+    id_herbalife: '',
+    level: '',
+    email: '',
+    role: '',
+    phone_number: ''
+});
+
+const isFormValid = computed(() => {
+    return formData.value.first_name && 
+           formData.value.last_name && 
+           formData.value.id_herbalife && 
+           formData.value.level &&
+           formData.value.email &&
+           formData.value.role &&
+           formData.value.phone_number;
 });
 
 const levelOptions = [
@@ -136,8 +173,13 @@ const addNewCoach = createResource({
         return {
             coach: formData.value
         }
+    },
+    onSuccess: () => {
+        showDialog.value = false;
+        resetForm();
+        emit('coachAdded'); // Emit event when coach is added
     }
-})
+});
 
 const sponsorOptions = computed(() => {
     if (!coachesResource.list.data) return [];
@@ -148,8 +190,55 @@ const sponsorOptions = computed(() => {
 });
 
 function submitForm() {
+    // Reset errors
+    errors.value = {
+        first_name: '',
+        last_name: '',
+        id_herbalife: '',
+        level: '',
+        email: '',
+        role: '',
+        phone_number: ''
+    };
+
+    // Validate fields
+    let isValid = true;
+    if (!formData.value.first_name) {
+        errors.value.first_name = 'First name is required';
+        isValid = false;
+    }
+    if (!formData.value.last_name) {
+        errors.value.last_name = 'Last name is required';
+        isValid = false;
+    }
+    if (!formData.value.id_herbalife) {
+        errors.value.id_herbalife = 'ID Herbalife is required';
+        isValid = false;
+    }
+    if (!formData.value.level) {
+        errors.value.level = 'Level is required';
+        isValid = false;
+    }
+    if (!formData.value.email) {
+        errors.value.email = 'Email is required';
+        isValid = false;
+    }
+    if (!formData.value.role) {
+        errors.value.role = 'Role is required';
+        isValid = false;
+    }
+    if (!formData.value.phone_number) {
+        errors.value.phone_number = 'Phone number is required';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Proceed with form submission
     addNewCoach.submit();
-    showDialog.value = false;
+}
+
+function resetForm() {
     formData.value = {
         first_name: '',
         last_name: '',

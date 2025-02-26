@@ -181,4 +181,16 @@ function confirmDelete() {
     showDeleteDialog.value = false;
     coachToDelete.value = null;
 }
+
+// Add reload method to expose
+function reload() {
+    coachesResource.reload();
+    sponsorsResource.reload();
+}
+
+// Expose reload method and coachesResource
+defineExpose({
+    reload,
+    coachesResource
+});
 </script>

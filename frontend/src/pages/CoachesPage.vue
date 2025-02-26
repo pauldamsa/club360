@@ -13,8 +13,8 @@
                 @click="addCoachDialog.openDialog()" 
             />
         </div>
-        <CoachesTable />
-        <AddCoachDialog ref="addCoachDialog" />
+        <CoachesTable ref="coachesTable" />
+        <AddCoachDialog ref="addCoachDialog" @coachAdded="handleCoachAdded" />
     </div>
 </template>
 
@@ -25,6 +25,7 @@ import { ref, computed } from 'vue';
 import { createListResource } from 'frappe-ui';
 
 const addCoachDialog = ref(null);
+const coachesTable = ref(null);
 
 const coachesResource = createListResource({
     doctype: 'Coach',
@@ -35,4 +36,12 @@ const coachesResource = createListResource({
 const coachCount = computed(() => {
     return coachesResource.list.data?.length || 0;
 });
+
+function handleCoachAdded() {
+    // Reload both resources
+    coachesResource.reload();
+    if (coachesTable.value?.coachesResource) {
+        coachesTable.value.coachesResource.reload();
+    }
+}
 </script>
