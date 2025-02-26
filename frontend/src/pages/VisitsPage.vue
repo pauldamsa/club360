@@ -278,6 +278,13 @@ const visitsResource = createListResource({
     })
 });
 
+// Add total visits count resource
+const totalVisitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name'],
+    auto: true
+});
+
 // Add filter functions
 function resetFilters() {
     filters.value = {
@@ -292,7 +299,7 @@ function applyFilters() {
     visitsResource.reload();
 }
 
-const visitsList = computed(() => visitsResource.list.data || []);
+const visitsList = computed(() => totalVisitsResource.list.data || []);
 
 // Remove the sorting from computed property since we're using server-side ordering
 const sortedVisits = computed(() => {
