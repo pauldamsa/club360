@@ -60,6 +60,11 @@ def add_new_membership(memberships_and_club_member):
     memberships = memberships_and_club_member['memberships']
     club_member = memberships_and_club_member['club_member']
     new_membership = memberships[-1]
+
+    club_member_to_update = frappe.get_doc('Club Member', club_member)
+    club_member_to_update.status = 'Active'
+    club_member_to_update.save(ignore_permissions=True)
+    
     doc = frappe.get_doc('Club Member', club_member)
     doc.append('memberships', {
         'type': new_membership['type'],
@@ -67,6 +72,7 @@ def add_new_membership(memberships_and_club_member):
         'end_date': new_membership['end_date'],
         'remaining_visits': new_membership['remaining_visits']
     })
+    
     doc.save(ignore_permissions=True)
 
 
