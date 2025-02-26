@@ -177,7 +177,10 @@ const addNewCoach = createResource({
     onSuccess: () => {
         showDialog.value = false;
         resetForm();
-        emit('coachAdded'); // Emit event when coach is added
+        emit('coachAdded'); // Emit event when coach is added successfully
+    },
+    onError: (error) => {
+        console.error('Error adding coach:', error);
     }
 });
 

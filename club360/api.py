@@ -177,6 +177,19 @@ def edit_coach(coach):
         frappe.throw(f'Error updating coach: {str(e)}')
 
 @frappe.whitelist()
+def delete_coach(coach):
+    try:
+        doc = frappe.get_doc('Coach', {'id_herbalife': coach.get('id_herbalife')})
+        doc_name = doc.full_name
+        doc.delete(ignore_permissions=True)
+        frappe.db.commit()
+        return {"message": f"Coach {doc_name} deleted successfully"}
+    except frappe.DoesNotExistError:
+        frappe.throw('Coach not found')
+    except Exception as e:
+        frappe.throw(f'Error deleting coach: {str(e)}')
+
+@frappe.whitelist()
 def add_visit(visit_data):
     try:
         new_visit = frappe.new_doc('Visit')

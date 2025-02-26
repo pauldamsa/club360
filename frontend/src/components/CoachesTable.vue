@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import { createListResource, Badge, Avatar, Button, Input, Dialog } from 'frappe-ui';
+import { createListResource, Badge, Avatar, Button, Input, Dialog, createResource } from 'frappe-ui';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -153,6 +153,24 @@ const coachesList = computed(() => {
 const showDeleteDialog = ref(false);
 const coachToDelete = ref(null);
 
+const emit = defineEmits(['coachDeleted']);
+
+const deleteCoachResource = createResource({
+    url: 'club360.api.delete_coach',
+    makeParams() {
+        return {
+            coach: coachToDelete.value
+        };
+    },
+    onSuccess() {
+        showDeleteDialog.value = false;
+        coachToDelete.value = null;
+        coachesResource.reload();
+        sponsorsResource.reload();
+        emit('coachDeleted');
+    }
+});
+
 function clearSearch() {
     searchTerm.value = '';
     performSearch();
@@ -176,10 +194,7 @@ function deleteCoach(coach) {
 
 function confirmDelete() {
     if (!coachToDelete.value) return;
-    console.log('Confirming delete for:', coachToDelete.value.full_name);
-    // TODO: Implement actual delete API call
-    showDeleteDialog.value = false;
-    coachToDelete.value = null;
+    deleteCoachResource.submit();
 }
 
 // Add reload method to expose

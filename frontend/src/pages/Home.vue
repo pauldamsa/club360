@@ -114,7 +114,7 @@
     </div>
 
     <AddMemberDialog ref="addMemberDialog" @memberAdded="handleMemberAdded" />
-    <AddCoachDialog ref="addCoachDialog" />
+    <AddCoachDialog ref="addCoachDialog" @coachAdded="handleCoachAdded" />
 </template>
 
 <script setup>
@@ -173,8 +173,26 @@ function formatTime(date) {
 }
 
 function handleMemberAdded() {
-    // Handle successful member addition
+    // Reload members to update the mapping
+    membersResource.reload();
+    
+    // Show success message (optional)
     console.log('Member added successfully');
+}
+
+// Add coaches resource for quick updates
+const coachesResource = createListResource({
+    doctype: 'Coach',
+    fields: ['name', 'full_name'],
+    auto: true
+});
+
+function handleCoachAdded() {
+    // Reload coaches to update any lists/mappings
+    coachesResource.reload();
+    
+    // Show success message (optional)
+    console.log('Coach added successfully');
 }
 
 // Update visits count resource to only count today's visits
