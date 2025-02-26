@@ -1,4 +1,5 @@
 import frappe
+from frappe.exceptions import ValidationError
 
 @frappe.whitelist()
 def add_new_club_member(club_member):
@@ -177,23 +178,16 @@ def add_visit(visit_data):
         new_visit.date = visit_data['date']
         new_visit.type_event = visit_data['type_event']
         
-        new_visit.insert(ignore_permissions=True)
-        
-        # Update membership remaining visits if type is Sport
-        # club_member = frappe.get_doc('Club Member', visit_data['club_member']['value'])
-        # if club_member.memberships:
-        #     active_membership = club_member.memberships[-1]  # Get latest membership
-        #     if active_membership.remaining_visits > 0:
-        #         active_membership.remaining_visits -= 1
-        #         # Update status based on remaining visits
-        #         if active_membership.remaining_visits == 0:
-        #             club_member.status = "Inactive"
-        #         club_member.save(ignore_permissions=True)
-        
-        return new_visit
-        
+        try:
+            new_visit.insert(ignore_permissions=True)
+            return new_visit
+        except ValidationError as ve:
+            # Catch the specific validation error and re-raise it with the message
+            return "Error adding visit: There is no valid membership for this club member"
+            
     except Exception as e:
-        frappe.throw(f'Error adding visit: {str(e)}')
+        # Catch any other errors
+        frappe.throw(str(e))
 
 @frappe.whitelist()
 def delete_visit(visit):

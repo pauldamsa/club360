@@ -12,7 +12,8 @@
                 {
                     label: 'Add Visit',
                     variant: 'solid',
-                    onClick: submitForm
+                    onClick: submitForm,
+                    disabled: !isFormValid
                 }
             ]
         }"
@@ -27,6 +28,7 @@
                     :options="memberOptions"
                     placeholder="Select member"
                     required
+                    :error="errors.club_member"
                 />
 
                 <FormControl
@@ -35,6 +37,7 @@
                     v-model="formData.date"
                     :default="today"
                     required
+                    :error="errors.date"
                 />
 
                 <FormControl
@@ -43,7 +46,13 @@
                     v-model="formData.type_event"
                     :options="typeOptions"
                     required
+                    :error="errors.type_event"
                 />
+
+                <!-- Update error message display -->
+                <div v-if="addVisitResource.error || errorMessage" class="mt-2">
+                    <p class="text-red-600 text-sm">{{ errorMessage || addVisitResource.error?.message }}</p>
+                </div>
             </div>
         </template>
     </Dialog>
@@ -85,23 +94,65 @@ const memberOptions = computed(() => {
     }));
 });
 
+const errorMessage = ref('');
+
 const addVisitResource = createResource({
     url: 'club360.api.add_visit',
     makeParams: () => ({
         visit_data: formData.value
     }),
-    onSuccess: () => {
-        showDialog.value = false;
-        resetForm();
-        emit('visitAdded');
+    onSuccess: (response) => {
+        if (typeof response === 'string' && response.includes('Error')) {
+            errorMessage.value = response;
+        } else {
+            showDialog.value = false;
+            resetForm();
+            errorMessage.value = '';
+            emit('visitAdded');
+        }
     },
     onError: (error) => {
         console.error('Error adding visit:', error);
-        // You might want to show an error message to the user here
+        errorMessage.value = error.message;
     }
 });
 
+const errors = ref({
+    club_member: '',
+    date: '',
+    type_event: ''
+});
+
+const isFormValid = computed(() => {
+    return formData.value.club_member && formData.value.date && formData.value.type_event;
+});
+
 function submitForm() {
+    // Reset errors
+    errors.value = {
+        club_member: '',
+        date: '',
+        type_event: ''
+    };
+
+    // Validate fields
+    let isValid = true;
+    if (!formData.value.club_member) {
+        errors.value.club_member = 'Member is required';
+        isValid = false;
+    }
+    if (!formData.value.date) {
+        errors.value.date = 'Date is required';
+        isValid = false;
+    }
+    if (!formData.value.type_event) {
+        errors.value.type_event = 'Type is required';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Proceed with form submission
     addVisitResource.submit();
 }
 
@@ -111,6 +162,7 @@ function resetForm() {
         date: new Date().toISOString().split('T')[0],
         type_event: 'Breakfast'
     };
+    errorMessage.value = '';
 }
 
 function openDialog() {
