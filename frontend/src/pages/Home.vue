@@ -84,7 +84,12 @@
         <!-- Today's Visits -->
         <Card>
             <div class="p-4">
-                <h2 class="text-lg font-medium mb-4">Today's Visits</h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-medium">Today's Visits</h2>
+                    <span class="px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-md">
+                        Total: {{ allVisitsCount }}
+                    </span>
+                </div>
                 <div class="space-y-4">
                     <div v-if="todayVisits.length === 0" class="text-center text-gray-500 py-4">
                         No visits recorded today
@@ -162,11 +167,27 @@ const formattedVisits = computed(() => {
 });
 
 function formatTime(date) {
-    return formatDistance(date, new Date(), { addSuffix: true });
+    const baseTime = new Date(date);
+    baseTime.setHours(7, 0, 0); // Set time to 7:00 AM
+    return formatDistance(baseTime, new Date(), { addSuffix: true });
 }
 
 function handleMemberAdded() {
     // Handle successful member addition
     console.log('Member added successfully');
 }
+
+// Update visits count resource to only count today's visits
+const allVisitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name'],
+    filters: {
+        date: ['>=', new Date().toISOString().split('T')[0]]
+    },
+    auto: true
+});
+
+const allVisitsCount = computed(() => {
+    return allVisitsResource.list.data?.length || 0;
+});
 </script>
