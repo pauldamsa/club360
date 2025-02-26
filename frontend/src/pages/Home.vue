@@ -54,7 +54,7 @@
                         <Activity class="w-5 h-5 text-blue-500" />
                     </div>
                     <p class="text-2xl font-semibold">{{ totalVisits }}</p>
-                    <p class="text-sm text-gray-500 mt-2">+8% from last month</p>
+                    <p class="text-sm text-gray-500 mt-2">average visits in last 3 months: {{ averageVisits }}</p>
                 </div>
             </Card>
 
@@ -65,7 +65,7 @@
                         <Users class="w-5 h-5 text-green-500" />
                     </div>
                     <p class="text-2xl font-semibold">{{ activeMembersCount }}</p>
-                    <p class="text-sm text-gray-500 mt-2">12 new this month</p>
+                    <p class="text-sm text-gray-500 mt-2">{{ newMembersCount }} new this month</p>
                 </div>
             </Card>
 
@@ -76,7 +76,7 @@
                         <Users class="w-5 h-5 text-purple-500" />
                     </div>
                     <p class="text-2xl font-semibold">{{ referralsCount }}</p>
-                    <p class="text-sm text-gray-500 mt-2">2 new this month</p>
+                    <p class="text-sm text-gray-500 mt-2">{{ newReferralsCount }} new this month</p>
                 </div>
             </Card>
         </div>
@@ -255,5 +255,52 @@ const referralsResource = createListResource({
 
 const referralsCount = computed(() => {
     return referralsResource.list.data?.length || 0;
+});
+
+// Add resource for this month's referrals
+const newReferralsResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name'],
+    filters: {
+        source: 'Referral',
+        creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
+    },
+    auto: true
+});
+
+const newReferralsCount = computed(() => {
+    return newReferralsResource.list.data?.length || 0;
+});
+
+// Add resource for new members this month
+const newMembersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name'],
+    filters: {
+        creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
+    },
+    auto: true
+});
+
+const newMembersCount = computed(() => {
+    return newMembersResource.list.data?.length || 0;
+});
+
+// Add resource for last 3 months visits
+const lastThreeMonthsVisitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name', 'date'],
+    filters: {
+        date: ['>=', new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0]]
+    },
+    auto: true
+});
+
+const averageVisits = computed(() => {
+    if (!lastThreeMonthsVisitsResource.list.data) return 0;
+    
+    const visits = lastThreeMonthsVisitsResource.list.data.length;
+    const months = 3;
+    return Math.round(visits / months);
 });
 </script>

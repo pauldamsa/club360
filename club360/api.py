@@ -141,6 +141,7 @@ def add_new_coach(coach):
     new_coach.email = coach['email']
     new_coach.phone_number = coach['phone_number']
     new_coach.role = coach['role']
+    new_coach.level = coach['level']  # Add this line to set the level
 
     if isinstance(coach['sponsor'], dict):
         new_coach.sponsor = coach['sponsor']['value']

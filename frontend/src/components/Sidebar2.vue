@@ -96,7 +96,7 @@
                         >
                             <div class="flex items-center">
                                 <BarChart2 class="h-5 w-5 flex-shrink-0 mr-3" />
-                                <span>Statistics</span>
+                                <span>Statistics & Reports</span>
                             </div>
                             <FeatherIcon 
                                 :name="showStats ? 'chevron-down' : 'chevron-right'" 
@@ -184,7 +184,8 @@ function toggleAdmin() {
 
 const showStats = ref(false);
 const statsItems = [
-    { label: 'Club', path: '/statistics/club' }
+    { label: 'Club', path: '/statistics/club' },
+    { label: 'Reports', path: '/statistics/reports' }  // Added Reports menu item
 ];
 
 const isStatsActive = computed(() => {
