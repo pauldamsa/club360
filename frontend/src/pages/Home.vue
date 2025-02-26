@@ -8,7 +8,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card class="cursor-pointer hover:shadow-lg transition-shadow">
+            <Card @click="addVisitDialog.openDialog()" class="cursor-pointer hover:shadow-lg transition-shadow">
                 <div class="p-4 flex items-center space-x-4">
                     <div class="p-3 bg-green-100 rounded-lg">
                         <CheckSquare class="w-6 h-6 text-green-600" />
@@ -53,7 +53,7 @@
                         <h3 class="text-gray-500 text-sm">Total Visits</h3>
                         <Activity class="w-5 h-5 text-blue-500" />
                     </div>
-                    <p class="text-2xl font-semibold">1,000</p>
+                    <p class="text-2xl font-semibold">{{ totalVisits }}</p>
                     <p class="text-sm text-gray-500 mt-2">+8% from last month</p>
                 </div>
             </Card>
@@ -64,7 +64,7 @@
                         <h3 class="text-gray-500 text-sm">Active Members</h3>
                         <Users class="w-5 h-5 text-green-500" />
                     </div>
-                    <p class="text-2xl font-semibold">100</p>
+                    <p class="text-2xl font-semibold">{{ activeMembersCount }}</p>
                     <p class="text-sm text-gray-500 mt-2">12 new this month</p>
                 </div>
             </Card>
@@ -72,11 +72,11 @@
             <Card>
                 <div class="p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-gray-500 text-sm">Active Memberships</h3>
-                        <CreditCard class="w-5 h-5 text-purple-500" />
+                        <h3 class="text-gray-500 text-sm">Total Referrals</h3>
+                        <Users class="w-5 h-5 text-purple-500" />
                     </div>
-                    <p class="text-2xl font-semibold">300</p>
-                    <p class="text-sm text-gray-500 mt-2">5 expiring soon</p>
+                    <p class="text-2xl font-semibold">{{ referralsCount }}</p>
+                    <p class="text-sm text-gray-500 mt-2">2 new this month</p>
                 </div>
             </Card>
         </div>
@@ -115,6 +115,7 @@
 
     <AddMemberDialog ref="addMemberDialog" @memberAdded="handleMemberAdded" />
     <AddCoachDialog ref="addCoachDialog" @coachAdded="handleCoachAdded" />
+    <AddVisitDialog ref="addVisitDialog" @visitAdded="handleVisitAdded" />
 </template>
 
 <script setup>
@@ -123,11 +124,13 @@ import { Card, Dialog, Button, Avatar, Badge, createListResource } from 'frappe-
 import { session } from '../data/session';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
 import AddCoachDialog from '@/components/AddCoachDialog.vue';
+import AddVisitDialog from '@/components/AddVisitDialog.vue';
 import { UserPlus, CheckSquare, Users, Activity, CreditCard } from 'lucide-vue-next';
 import { formatDistance } from 'date-fns';
 
 const addMemberDialog = ref(null);
 const addCoachDialog = ref(null);
+const addVisitDialog = ref(null);
 
 // Add members resource to get names
 const membersResource = createListResource({
@@ -207,5 +210,50 @@ const allVisitsResource = createListResource({
 
 const allVisitsCount = computed(() => {
     return allVisitsResource.list.data?.length || 0;
+});
+
+function handleVisitAdded() {
+    // Reload visits to update the lists
+    visitsResource.reload();
+    allVisitsResource.reload();
+}
+
+// Add total visits count resource (all-time)
+const totalVisitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name'],
+    auto: true
+});
+
+const totalVisits = computed(() => {
+    return totalVisitsResource.list.data?.length || 0;
+});
+
+// Add active members count resource
+const activeMembersResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name'],
+    filters: {
+        status: 'Active'
+    },
+    auto: true
+});
+
+const activeMembersCount = computed(() => {
+    return activeMembersResource.list.data?.length || 0;
+});
+
+// Add referrals count resource
+const referralsResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name'],
+    filters: {
+        source: 'Referral'
+    },
+    auto: true
+});
+
+const referralsCount = computed(() => {
+    return referralsResource.list.data?.length || 0;
 });
 </script>
