@@ -8,11 +8,19 @@
                     {{ visitsList.length }}
                 </span>
             </div>
-            <Button 
-                variant="solid" 
-                label="Add Visit"
-                @click="handleAddVisit"
-            />
+            <div class="flex space-x-2">
+                <Button 
+                    variant="outline" 
+                    label="Export PDF"
+                    icon="file-text"
+                    @click="exportToPDF"
+                />
+                <Button 
+                    variant="solid" 
+                    label="Add Visit"
+                    @click="handleAddVisit"
+                />
+            </div>
         </div>
 
         <!-- Add Filters Section -->
@@ -219,6 +227,8 @@
 import { ref, computed } from 'vue';
 import { Button, Card, Avatar, Badge, createListResource, Input, Select, createResource, Dialog, FormControl } from 'frappe-ui';
 import AddVisitDialog from '@/components/AddVisitDialog.vue';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Add club members resource for name mapping
 const clubMembersResource = createListResource({
@@ -399,5 +409,62 @@ function handleDeleteVisit(visit) {
 function confirmDeleteVisit() {
     if (!visitToDelete.value) return;
     deleteVisitResource.submit();
+}
+
+// Add a new resource for filtered exports
+const exportVisitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name', 'club_member', 'date', 'type_event'],
+    orderBy: 'date desc',
+    auto: false,  // Don't load automatically
+    filters: computed(() => {
+        const filterObj = {};
+        if (filters.value.fromDate) {
+            filterObj.date = filters.value.toDate ? 
+                ['between', [filters.value.fromDate, filters.value.toDate]] :
+                ['>=', filters.value.fromDate];
+        } else if (filters.value.toDate) {
+            filterObj.date = ['<=', filters.value.toDate];
+        }
+        return filterObj;
+    })
+});
+
+async function exportToPDF() {
+    // Load filtered data first
+    await exportVisitsResource.reload();
+    
+    const doc = new jsPDF();
+    
+    // Add title and date range
+    doc.setFontSize(16);
+    doc.text('Visits Report', 14, 15);
+    doc.setFontSize(11);
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 25);
+    
+    // Add date range if filters are set
+    if (filters.value.fromDate || filters.value.toDate) {
+        const dateRange = `Date Range: ${filters.value.fromDate || 'Start'} to ${filters.value.toDate || 'End'}`;
+        doc.text(dateRange, 14, 35);
+    }
+
+    // Prepare data for table using filtered data
+    const tableData = (exportVisitsResource.list.data || []).map(visit => [
+        memberNames.value[visit.club_member] || visit.club_member,
+        formatDate(visit.date),
+        visit.type_event
+    ]);
+
+    // Add table with adjusted starting position
+    autoTable(doc, {
+        head: [['Member', 'Date', 'Type']],
+        body: tableData,
+        startY: filters.value.fromDate || filters.value.toDate ? 40 : 30,
+        theme: 'grid'
+    });
+
+    // Save PDF
+    const fileName = `visits-report${filters.value.fromDate ? '-from-' + filters.value.fromDate : ''}${filters.value.toDate ? '-to-' + filters.value.toDate : ''}.pdf`;
+    doc.save(fileName);
 }
 </script>

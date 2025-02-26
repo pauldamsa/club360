@@ -106,8 +106,8 @@
                 </div>
             </Card>
 
-            <!-- Stock Management -->
-            <Card>
+            <!-- Stock Management - Only show for Trainee or Club Owner -->
+            <Card v-if="showStockSection">
                 <div class="p-4">
                     <div class="flex items-center space-x-3 mb-4">
                         <h2 class="text-lg font-medium">Stock Management</h2>
@@ -303,4 +303,10 @@ function addStock() {
     console.log('Adding stock:', stockData.value);
     // TODO: Implement stock addition logic
 }
+
+// Add computed property to check if stock section should be shown
+const showStockSection = computed(() => {
+    const role = coachDoc.value?.role;
+    return role === 'Junior Partner' || role === 'Club Owner';
+});
 </script>
