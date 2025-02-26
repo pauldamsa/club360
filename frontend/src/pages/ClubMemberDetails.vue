@@ -151,8 +151,9 @@
             </Card>
         </div>
 
-        <!-- Referrals Section -->
-        <div class="mt-6">
+        <!-- Referrals and Recent Visits Section -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Referrals Section -->
             <Card>
                 <div class="space-y-4">
                     <h2 class="text-lg font-medium mb-4">Member Referrals</h2>
@@ -177,6 +178,40 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <Badge :label="referral.status" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </Card>
+
+            <!-- Recent Visits Section -->
+            <Card>
+                <div class="space-y-4">
+                    <h2 class="text-lg font-medium mb-4">Recent Visits</h2>
+                    <div v-if="recentVisits.length === 0" class="text-gray-500 text-center py-4">
+                        No visits recorded
+                    </div>
+                    <div v-else class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="visit in recentVisits" :key="visit.name" class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">{{ formatDate(visit.date) }}</td>
+                                    <td class="px-6 py-4">
+                                        <Badge 
+                                            :label="visit.type_event" 
+                                            :class="{
+                                                'bg-blue-100 text-blue-800': visit.type_event === 'Sport',
+                                                'bg-green-100 text-green-800': visit.type_event === 'Breakfast'
+                                            }"
+                                        />
                                     </td>
                                 </tr>
                             </tbody>
@@ -418,5 +453,22 @@ const referralName = computed(() => {
     if (!clubMemberDoc.value?.referral_of || !membersResource.list.data) return 'No Referral';
     const referral = membersResource.list.data.find(m => m.name === clubMemberDoc.value.referral_of);
     return referral?.full_name || 'No Referral';
+});
+
+// Add visits resource
+const visitsResource = createListResource({
+    doctype: 'Visit',
+    fields: ['name', 'date', 'type_event'],
+    filters: computed(() => ({
+        club_member: route.params.id_club_member
+    })),
+    orderBy: 'date desc',
+    limit: 10,
+    auto: true
+});
+
+// Add computed for recent visits
+const recentVisits = computed(() => {
+    return visitsResource.list.data || [];
 });
 </script>
