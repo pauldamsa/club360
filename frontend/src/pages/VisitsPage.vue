@@ -102,6 +102,33 @@
                         </tr>
                     </tbody>
                 </table>
+                <!-- Add pagination controls -->
+                <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
+                    <div class="flex flex-1 justify-between items-center">
+                        <div class="text-sm text-gray-700">
+                            <!-- Showing page {{ visitsResource.currentPage }} of {{ visitsResource.totalPages }} -->
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                :disabled="!visitsResource?.hasPreviousPage"
+                                @click="previousPage"
+                            >
+                                Previous
+                            </Button>
+
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                :disabled="!visitsResource?.hasNextPage"
+                                @click="nextPage"
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </Card>
         <AddVisitDialog 
@@ -178,27 +205,28 @@ const visitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'club_member', 'date', 'type_event'],
     orderBy: 'creation desc',
-    auto: true
+    auto: true,
+    pageLength: 10,
+    pagination: true,
 });
+console.log(visitsResource);
+// Add pagination methods
+function nextPage() {
+    visitsResource.next();
+}
 
-
-const deleteVisit = createResource({
-    url: 'club360.api.delete_visit',
-    makeParams: (values) => ({
-        visit: editableVisit.value
-    })
-});
+function previousPage() {
+    visitsResource.previous();
+}
 
 const visitsList = computed(() => visitsResource.list.data || []);
 
-// Update sorted visits to include member names
+// Remove the sorting from computed property since we're using server-side ordering
 const sortedVisits = computed(() => {
-    return [...visitsList.value]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .map(visit => ({
-            ...visit,
-            memberName: memberNames.value[visit.club_member] || visit.club_member
-        }));
+    return (visitsResource.list.data || []).map(visit => ({
+        ...visit,
+        memberName: memberNames.value[visit.club_member] || visit.club_member
+    }));
 });
 
 const editingVisit = ref(null);
