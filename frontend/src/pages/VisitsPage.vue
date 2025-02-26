@@ -15,6 +15,51 @@
             />
         </div>
 
+        <!-- Add Filters Section -->
+        <Card class="mb-4">
+            <div class="p-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Member Filter -->
+                    <div>
+                        <FormControl
+                            type="autocomplete"
+                            label="Filter by Member"
+                            v-model="filters.member"
+                            :options="clubMemberOptions"
+                            placeholder="Select member"
+                        />
+                    </div>
+                    <!-- Date Filter -->
+                    <div class="flex space-x-4">
+                        <FormControl
+                            type="date"
+                            label="From Date"
+                            v-model="filters.fromDate"
+                            class="flex-1"
+                        />
+                        <FormControl
+                            type="date"
+                            label="To Date"
+                            v-model="filters.toDate"
+                            class="flex-1"
+                        />
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <Button 
+                        variant="outline" 
+                        label="Reset" 
+                        @click="resetFilters"
+                    />
+                    <Button 
+                        variant="solid" 
+                        label="Apply Filters"
+                        @click="applyFilters"
+                    />
+                </div>
+            </div>
+        </Card>
+
         <!-- Visits Table -->
         <Card>
             <div class="overflow-x-auto">
@@ -113,7 +158,7 @@
                                 variant="outline" 
                                 size="sm"
                                 :disabled="!visitsResource?.hasPreviousPage"
-                                @click="previousPage"
+                                @click="visitsResource.previous()"
                             >
                                 Previous
                             </Button>
@@ -122,7 +167,7 @@
                                 variant="outline" 
                                 size="sm"
                                 :disabled="!visitsResource?.hasNextPage"
-                                @click="nextPage"
+                                @click="visitsResource.next()"
                             >
                                 Next
                             </Button>
@@ -171,7 +216,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Button, Card, Avatar, Badge, createListResource, Input, Select, createResource, Dialog } from 'frappe-ui';
+import { Button, Card, Avatar, Badge, createListResource, Input, Select, createResource, Dialog, FormControl } from 'frappe-ui';
 import AddVisitDialog from '@/components/AddVisitDialog.vue';
 
 // Add club members resource for name mapping
@@ -201,6 +246,13 @@ const clubMemberOptions = computed(() => {
     }));
 });
 
+// Add filters state
+const filters = ref({
+    member: null,
+    fromDate: null,
+    toDate: null
+});
+
 const visitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'club_member', 'date', 'type_event'],
@@ -208,15 +260,35 @@ const visitsResource = createListResource({
     auto: true,
     pageLength: 10,
     pagination: true,
+    filters: computed(() => {
+        const filterObj = {};
+        if (filters.value.member) {
+            filterObj.club_member = filters.value.member.value;
+        }
+        if (filters.value.fromDate) {
+            filterObj.date = ['>=', filters.value.fromDate];
+        }
+        if (filters.value.toDate) {
+            filterObj.date = filters.value.fromDate ? 
+                ['between', [filters.value.fromDate, filters.value.toDate]] :
+                ['<=', filters.value.toDate];
+        }
+        return filterObj;
+    })
 });
-console.log(visitsResource);
-// Add pagination methods
-function nextPage() {
-    visitsResource.next();
+
+// Add filter functions
+function resetFilters() {
+    filters.value = {
+        member: null,
+        fromDate: null,
+        toDate: null
+    };
+    visitsResource.reload();
 }
 
-function previousPage() {
-    visitsResource.previous();
+function applyFilters() {
+    visitsResource.reload();
 }
 
 const visitsList = computed(() => visitsResource.list.data || []);
