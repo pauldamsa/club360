@@ -76,33 +76,39 @@
                                 <td class="px-6 py-4">{{ formatDate(entry.data) }}</td>
                                 <td class="px-6 py-4">{{ entry.coach_name }}</td>
                                 <td class="px-6 py-4">{{ entry.type_event }}</td>
-                                <td class="px-6 py-4">
-                                    <Badge 
-                                        :label="entry.shake || 0"
-                                        :variant="entry.shake > 0 ? 'solid' : 'danger'"
-                                    />
-                                </td>
-                                <td class="px-6 py-4">
-                                    <Badge 
-                                        :label="entry.aloe || 0"
-                                        :variant="entry.aloe > 0 ? 'solid' : 'danger'"
-                                    />
-                                </td>
-                                <td class="px-6 py-4">
-                                    <Badge 
-                                        :label="entry.tea || 0"
-                                        :variant="entry.tea > 0 ? 'solid' : 'danger'"
-                                    />
-                                </td>
-                                <td class="px-6 py-4">
-                                    <Badge 
-                                        :label="entry.pdm || 0"
-                                        :variant="entry.pdm > 0 ? 'solid' : 'danger'"
-                                    />
-                                </td>
+                                <td class="px-6 py-4">{{ entry.shake || 0 }}</td>
+                                <td class="px-6 py-4">{{ entry.aloe || 0 }}</td>
+                                <td class="px-6 py-4">{{ entry.tea || 0 }}</td>
+                                <td class="px-6 py-4">{{ entry.pdm || 0 }}</td>
                             </tr>
                         </tbody>
                     </table>
+                    <!-- Add pagination controls -->
+                    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 mt-4">
+                        <div class="flex flex-1 justify-between items-center">
+                            <div class="text-sm text-gray-700">
+                                <!-- Showing {{ (stockHistoryResource.currentPage - 1) * 5 + 1 }} to {{ Math.min(stockHistoryResource.currentPage * 5, stockHistory.length) }} of {{ stockHistory.length }} entries -->
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    :disabled="!stockHistoryResource.hasPreviousPage"
+                                    @click="stockHistoryResource.previous()"
+                                >
+                                    Previous
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    :disabled="!stockHistoryResource.hasNextPage"
+                                    @click="stockHistoryResource.next()"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Card>
@@ -159,11 +165,13 @@ const totalStock = computed(() => {
     return totals;
 });
 
-// Update stock history resource - remove coach_full_name as it doesn't exist
+// Update stock history resource to include pagination
 const stockHistoryResource = createListResource({
     doctype: 'Stock Entry',
     fields: ['name', 'data', 'coach', 'type_event', 'shake', 'aloe', 'tea', 'pdm'],
-    orderBy: 'date desc',
+    orderBy: 'data desc',
+    pageLength: 5,
+    pagination: true,
     auto: true
 });
 
