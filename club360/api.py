@@ -251,3 +251,27 @@ def edit_visit(visit_data):
         frappe.throw('Visit not found')
     except Exception as e:
         frappe.throw(f'Error updating visit: {str(e)}')
+
+@frappe.whitelist()
+def add_stock(stock_data):
+    try:
+        stock_entry = frappe.new_doc('Stock Entry')
+        stock_entry.coach = stock_data['coach']
+        stock_entry.data = frappe.utils.today()
+        stock_entry.type_event = 'Breakfast'
+        
+        # Add stock quantities
+        stock_entry.shake = stock_data['shake']
+        stock_entry.tea = stock_data['tea']
+        stock_entry.aloe = stock_data['aloe']
+        stock_entry.pdm = stock_data['pdm']
+        
+        stock_entry.insert(ignore_permissions=True)
+        
+        return {
+            "message": "Stock added successfully",
+            "stock_entry": stock_entry.name,
+        }
+        
+    except Exception as e:
+        frappe.throw(f"Error adding stock: {str(e)}")

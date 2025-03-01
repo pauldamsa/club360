@@ -129,6 +129,7 @@
                                     v-model="stockData.shake"
                                     class="w-16 text-center"
                                     min="0"
+                                    placeholder="0"
                                 />
                                 <button
                                     class="p-1 rounded hover:bg-gray-100 border"
@@ -156,6 +157,7 @@
                                     v-model="stockData.tea"
                                     class="w-16 text-center"
                                     min="0"
+                                    placeholder="0"
                                 />
                                 <button
                                     class="p-1 rounded hover:bg-gray-100 border"
@@ -183,6 +185,7 @@
                                     v-model="stockData.aloe"
                                     class="w-16 text-center"
                                     min="0"
+                                    placeholder="0"
                                 />
                                 <button
                                     class="p-1 rounded hover:bg-gray-100 border"
@@ -210,6 +213,7 @@
                                     v-model="stockData.pdm"
                                     class="w-16 text-center"
                                     min="0"
+                                    placeholder="0"
                                 />
                                 <button
                                     class="p-1 rounded hover:bg-gray-100 border"
@@ -233,10 +237,54 @@
         </div>
     </div>
     <EditCoachDialog ref="editCoachDialog" />
+
+    <!-- Stock Confirmation Dialog -->
+    <Dialog
+        :options="{
+            title: 'Confirm Stock Addition',
+            actions: [
+                {
+                    label: 'Cancel',
+                    variant: 'outline',
+                    onClick: () => showStockConfirmationDialog = false
+                },
+                {
+                    label: 'Confirm',
+                    variant: 'solid',
+                    onClick: confirmAddStock
+                }
+            ]
+        }"
+        v-model="showStockConfirmationDialog"
+    >
+        <template #body-content>
+            <div class="space-y-4">
+                <h3 class="font-medium">Please confirm the following stock quantities:</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-sm text-gray-600">Formula 1</div>
+                        <div class="text-lg font-medium">{{ stockData.shake }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-sm text-gray-600">Herbal Tea</div>
+                        <div class="text-lg font-medium">{{ stockData.tea }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-sm text-gray-600">Aloe</div>
+                        <div class="text-lg font-medium">{{ stockData.aloe }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="text-sm text-gray-600">PDM</div>
+                        <div class="text-lg font-medium">{{ stockData.pdm }}</div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
-import { createDocumentResource, createListResource, Card, Badge, Avatar, Button, FeatherIcon } from 'frappe-ui';
+import { createDocumentResource, createListResource, Card, Badge, Avatar, Button, FeatherIcon, Dialog, Input, createResource } from 'frappe-ui';
 import { useRoute } from 'vue-router';
 import { computed, ref } from 'vue';
 import EditCoachDialog from '@/components/EditCoachDialog.vue';
@@ -299,9 +347,34 @@ const stockData = ref({
     pdm: 0
 });
 
+// Add dialog state
+const showStockConfirmationDialog = ref(false);
+
 function addStock() {
-    console.log('Adding stock:', stockData.value);
-    // TODO: Implement stock addition logic
+    showStockConfirmationDialog.value = true;
+}
+
+const addStockResource = createResource({
+    url: 'club360.api.add_stock',
+    makeParams: () => ({
+        stock_data: {
+            coach: route.params.id_herbalife,
+            ...stockData.value
+        }
+    }),
+    onSuccess: () => {
+        showStockConfirmationDialog.value = false;
+        stockData.value = { shake: 0, tea: 0, aloe: 0, pdm: 0 };
+        // Reload coach data to show updated stock
+        coachResource.reload();
+    },
+    onError: (error) => {
+        console.error('Error adding stock:', error);
+    }
+});
+
+function confirmAddStock() {
+    addStockResource.submit();
 }
 
 // Add computed property to check if stock section should be shown
