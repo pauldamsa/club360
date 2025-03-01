@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.website.website_generator import WebsiteGenerator
+from club360.exceptions import NoValidMembershipError, NoServingsAvailableError
 
 class Visit(WebsiteGenerator):
 		
@@ -26,7 +27,7 @@ class Visit(WebsiteGenerator):
 				break
 
 		if not valid_membership_found:
-			frappe.throw("There is no valid membership for this club member")
+			raise NoValidMembershipError("There is no valid membership for this club member")
 			
 		club_member.save()
 	
@@ -38,6 +39,6 @@ class Visit(WebsiteGenerator):
 				if stock_item.servings > 0:
 					stock_item.servings -= 1
 				else:
-					frappe.throw(f"There is no servings for {self.type_event}")
+					raise NoServingsAvailableError(f"Coach products are out of stock! Check coach's stock")
 					break
 		coach.save()

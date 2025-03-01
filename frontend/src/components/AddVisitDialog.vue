@@ -56,11 +56,20 @@
             </div>
         </template>
     </Dialog>
+
+    <!-- Add error alert -->
+    <Alert
+        v-if="showError"
+        variant="error"
+        :message="errorMessage"
+        @close="showError = false"
+        class="mb-4"
+    />
 </template>
 
 <script setup>
 import { ref, defineExpose, computed, defineEmits } from 'vue';
-import { Dialog, FormControl, createListResource, createResource } from 'frappe-ui';
+import { Dialog, FormControl, createListResource, createResource, Alert } from 'frappe-ui';
 
 const emit = defineEmits(['visitAdded']);
 
@@ -94,6 +103,7 @@ const memberOptions = computed(() => {
     }));
 });
 
+const showError = ref(false);
 const errorMessage = ref('');
 
 const addVisitResource = createResource({
@@ -112,8 +122,13 @@ const addVisitResource = createResource({
         }
     },
     onError: (error) => {
-        console.error('Error adding visit:', error);
-        errorMessage.value = error.message;
+        // Check for the specific error message
+        if (error.message && error.message.includes("There is no servings for")) {
+            errorMessage.value = `Cannot add visit: ${error.message}`;
+        } else {
+            errorMessage.value = error.message || 'Error adding visit';
+        }
+        showError.value = true;
     }
 });
 

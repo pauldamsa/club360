@@ -1,5 +1,6 @@
 import frappe
 from frappe.exceptions import ValidationError
+from club360.exceptions import NoValidMembershipError, NoServingsAvailableError
 
 @frappe.whitelist()
 def add_new_club_member(club_member):
@@ -197,16 +198,16 @@ def add_visit(visit_data):
         new_visit.club_member = visit_data['club_member']['value']
         new_visit.date = visit_data['date']
         new_visit.type_event = visit_data['type_event']
-        
+
         try:
             new_visit.insert(ignore_permissions=True)
             return new_visit
-        except ValidationError as ve:
-            # Catch the specific validation error and re-raise it with the message
-            return "Error adding visit: There is no valid membership for this club member"
+        except NoValidMembershipError as e:
+            return f"Error adding visit: {str(e)}"
+        except NoServingsAvailableError as e:
+            return f"Error adding visit: {str(e)}"
             
     except Exception as e:
-        # Catch any other errors
         frappe.throw(str(e))
 
 @frappe.whitelist()

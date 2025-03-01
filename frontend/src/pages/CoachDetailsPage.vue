@@ -254,11 +254,11 @@ const coachResource = createDocumentResource({
         'id_herbalife',
         'phone_number',  
         'email',         
-        'sponsor'
+        'sponsor',
+        'stock'
     ],
     auto: true,
 });
-
 const coachDoc = computed(() => coachResource.doc || {});
 
 const clubMembersResource = createListResource({

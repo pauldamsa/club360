@@ -221,31 +221,6 @@
             </Card>
         </div>
     </div>
-    <!-- Delete Confirmation Dialog -->
-    <!--<Dialog
-        :options="{
-            title: 'Delete Member',
-            actions: [
-                {
-                    label: 'Cancel',
-                    variant: 'outline',
-                    onClick: () => showDeleteDialog = false
-                },
-                {
-                    label: 'Delete',
-                    variant: 'danger',
-                    onClick: confirmDelete
-                }
-            ]
-        }"
-        v-model="showDeleteDialog"
-    >
-        <template #body-content>
-            <p class="text-gray-600">
-                Are you sure you want to delete {{ memberToDelete?.full_name }}?
-            </p>
-        </template>
-    </Dialog> -->
     <EditMemberDialog ref="editMemberDialog" />
 
     <!-- Membership Delete Dialog -->

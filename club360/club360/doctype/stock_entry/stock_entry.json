@@ -18,13 +18,6 @@
  ],
  "fields": [
   {
-   "fieldname": "data",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Data",
-   "reqd": 1
-  },
-  {
    "fieldname": "shake",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -51,9 +44,9 @@
   },
   {
    "fieldname": "type_event",
-   "fieldtype": "Link",
+   "fieldtype": "Select",
    "label": "Type Event",
-   "options": "Club Event",
+   "options": "Breakfast\nSport",
    "reqd": 1
   },
   {
@@ -72,13 +65,20 @@
    "fieldname": "is_published",
    "fieldtype": "Check",
    "label": "Is published?"
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Data",
+   "reqd": 1
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-08 14:31:22.755005",
+ "modified": "2025-02-26 19:57:56.197806",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Stock Entry",

@@ -44,4 +44,12 @@ function handleCoachAdded() {
         coachesTable.value.coachesResource.reload();
     }
 }
+
+function handleCoachDeleted() {
+    // Reload both resources
+    coachesResource.reload();
+    if (coachesTable.value?.coachesResource) {
+        coachesTable.value.coachesResource.reload();
+    }
+}
 </script>

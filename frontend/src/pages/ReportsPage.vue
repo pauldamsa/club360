@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Reports</h1>
             <p class="mt-2 text-gray-600">Generate and download club reports</p>
         </div>
-
+        <h1>ADD THE VIEW CLIENTS TREE IN THE SELECTED MONTHS</h1>
         <!-- Filters Section -->
         <Card class="mb-6">
             <div class="p-4 space-y-4">
