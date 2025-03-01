@@ -10,6 +10,7 @@
   "last_name",
   "coach",
   "full_name",
+  "type",
   "column_break_tjbr",
   "source",
   "status",
@@ -98,13 +99,19 @@
    "fieldtype": "Link",
    "label": "Referral of",
    "options": "Club Member"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Club Member\nTrainee"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-24 15:05:13.200398",
+ "modified": "2025-03-01 19:47:36.951012",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Club Member",

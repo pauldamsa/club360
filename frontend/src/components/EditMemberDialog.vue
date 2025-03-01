@@ -109,6 +109,17 @@
                         v-model="formData.referral_of"
                     />
                 </div>
+                <div class="p-2">
+                    <FormControl
+                        type="select"
+                        :options="typeOptions"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Select member type"
+                        label="Type"
+                        v-model="formData.type"
+                    />
+                </div>
             </div>
         </template>
     </Dialog>
@@ -133,7 +144,8 @@ const formData = ref({
     source: '',
     referrals: 0,
     status: '',
-    referral_of: ''
+    referral_of: '',
+    type: 'Club Member', // Add default value
 });
 
 const errors = ref({
@@ -242,6 +254,12 @@ const sourceOptions = [
 const statusOptions = [
     { label: 'Active', value: 'Active' },
     { label: 'Inactive', value: 'Inactive' }
+];
+
+// Add type options
+const typeOptions = [
+    { label: 'Club Member', value: 'Club Member' },
+    { label: 'Trainee', value: 'Trainee' }
 ];
 
 function submitForm() {

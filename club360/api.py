@@ -18,6 +18,7 @@ def add_new_club_member(club_member):
     new_club_member.full_name = club_member['first_name'] + " " + club_member['last_name']
     new_club_member.source = club_member['source']
     new_club_member.status = 'Active'
+    new_club_member.type = 'Club Member'
     new_club_member.refferals = 0
     new_club_member.referral_of = club_member['referral_of']['value'] if club_member['source'] == 'Referral' else ''
     
@@ -46,6 +47,7 @@ def edit_club_member(new_club_member):
     club_member.source = new_club_member['source']
     club_member.status = new_club_member['status']
     club_member.referrals = new_club_member['referrals']
+    club_member.type = new_club_member['type']
 
     if isinstance(new_club_member['referral_of'], dict):
         club_member.referral_of = new_club_member['referral_of']['value'] if new_club_member['source'] == 'Referral' else ''

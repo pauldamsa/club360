@@ -34,6 +34,9 @@
                             <Badge :label="coachName" />
                         </div>
                         
+                        <div class="text-gray-500">Type</div>
+                        <div>{{ clubMemberDoc.type || 'Regular' }}</div>
+                        
                         <div class="text-gray-500">Source</div>
                         <div>{{ clubMemberDoc.source }}</div>
 
@@ -267,6 +270,8 @@ const showDeleteDialog = ref(false);
 const membershipTypes = [
     { label: '10 visits', value: '10 visits' },
     { label: '30 visits', value: '30 visits' },
+    { label: '10 visits free', value: '10 visits free' },
+    { label: '30 visits free', value: '30 visits free' },
 ];
 
 const route = useRoute();
