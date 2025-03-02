@@ -208,7 +208,7 @@ const allVisitsResource = createListResource({
     fields: ['name'],
     filters: {
         owner: session.user,
-        date: ['>=', new Date().toISOString().split('T')[0]]
+        date: ['>=', new Date().toISOString().split('T')[0]] 
     },
     auto: true
 });
@@ -223,16 +223,17 @@ function handleVisitAdded() {
     allVisitsResource.reload();
 }
 
-// Add total visits count resource (all-time)
+// Update total visits count resource to get all records
 const totalVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name'],
     filters: {
         owner: session.user
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
-
+console.log(totalVisitsResource);
 const totalVisits = computed(() => {
     return totalVisitsResource.list.data?.length || 0;
 });
@@ -306,6 +307,7 @@ const lastThreeMonthsVisitsResource = createListResource({
         owner: session.user,
         date: ['>=', new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0]]
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 

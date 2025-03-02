@@ -30,13 +30,10 @@
 
             <Card class="bg-white">
                 <div class="p-4">
-                    <h3 class="text-sm font-medium text-gray-500">Active Memberships</h3>
+                    <h3 class="text-sm font-medium text-gray-500">Total Coaches</h3>
                     <div class="mt-2 flex items-center justify-between">
-                        <div class="text-2xl font-semibold">{{ stats.activeMemberships }}</div>
-                        <FeatherIcon name="credit-card" class="w-8 h-8 text-yellow-500" />
-                    </div>
-                    <div class="mt-2 text-sm text-gray-600">
-                        Expiring Soon: {{ stats.expiringSoonMemberships }}
+                        <div class="text-2xl font-semibold">{{ stats.totalCoaches }}</div>
+                        <FeatherIcon name="award" class="w-8 h-8 text-yellow-500" />
                     </div>
                 </div>
             </Card>
@@ -45,11 +42,24 @@
                 <div class="p-4">
                     <h2 class="text-lg font-medium mb-4">Member Sources</h2>
                     <table class="min-w-full">
+                        <thead>
+                            <tr class="text-sm text-gray-500 border-b">
+                                <th class="text-left pb-2">Source</th>
+                                <th class="text-right pb-2">Total</th>
+                                <th class="text-right pb-2">This Month</th>
+                            </tr>
+                        </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(count, source) in stats.memberSources" :key="source">
+                            <tr v-for="(counts, source) in stats.memberSources" :key="source">
                                 <td class="py-2">{{ source }}</td>
                                 <td class="py-2 text-right">
-                                    <Badge :label="count" />
+                                    <Badge :label="counts.total" />
+                                </td>
+                                <td class="py-2 text-right">
+                                    <Badge 
+                                        :label="counts.thisMonth" 
+                                        :class="counts.thisMonth > 0 ? 'bg-green-100 text-green-800' : ''"
+                                    />
                                 </td>
                             </tr>
                         </tbody>
@@ -137,17 +147,16 @@ const stats = ref({
     totalMembers: 0,
     activeMembers: 0,
     totalCoaches: 0,
-    activeCoaches: 0,
     totalVisits: 0,
     visitsThisMonth: 0,
     activeMemberships: 0,
     expiringSoonMemberships: 0,
     memberSources: {
-        'Facebook': 0,
-        'Instagram': 0,
-        'Referral': 0,
-        'Active Contact': 0,
-        'Roadshow': 0
+        'Facebook': { total: 0, thisMonth: 0 },
+        'Instagram': { total: 0, thisMonth: 0 },
+        'Referral': { total: 0, thisMonth: 0 },
+        'Active Contact': { total: 0, thisMonth: 0 },
+        'Roadshow': { total: 0, thisMonth: 0 }
     }
 });
 

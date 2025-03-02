@@ -400,3 +400,65 @@ def get_new_members_trend(month=None):
     except Exception as e:
         frappe.throw(f"Error getting new members trend: {str(e)}")
 
+@frappe.whitelist()
+def get_dashboard_statistics():
+    try:
+        current_user = frappe.session.user
+        current_date = datetime.now()
+        first_day = current_date.replace(day=1)
+        
+        # Get all members with status
+        all_members = frappe.get_all('Club Member',
+            filters={'owner': current_user},
+            fields=['source', 'creation', 'status']
+        )
+        
+        # Get active members count
+        active_members = len([m for m in all_members if m.status == 'Active'])
+        
+        # Get total coaches
+        total_coaches = frappe.db.count('Coach', {'owner': current_user})
+        
+        # Get all visits
+        all_visits = frappe.get_all('Visit',
+            filters={'owner': current_user},
+            fields=['date']
+        )
+        
+        # Get visits this month
+        visits_this_month = frappe.get_all('Visit',
+            filters={
+                'owner': current_user,
+                'date': ['>=', first_day.strftime('%Y-%m-%d')]
+            }
+        )
+        
+        # Initialize source counts
+        sources = {
+            'Facebook': {'total': 0, 'thisMonth': 0},
+            'Instagram': {'total': 0, 'thisMonth': 0},
+            'Referral': {'total': 0, 'thisMonth': 0},
+            'Active Contact': {'total': 0, 'thisMonth': 0},
+            'Roadshow': {'total': 0, 'thisMonth': 0}
+        }
+        
+        # Count members by source
+        for member in all_members:
+            source = member.source
+            if source in sources:
+                sources[source]['total'] += 1
+                if member.creation.date() >= first_day.date():
+                    sources[source]['thisMonth'] += 1
+        
+        return {
+            'totalMembers': len(all_members),
+            'activeMembers': active_members,
+            'totalCoaches': total_coaches,
+            'totalVisits': len(all_visits),
+            'visitsThisMonth': len(visits_this_month),
+            'memberSources': sources
+        }
+        
+    except Exception as e:
+        frappe.log_error(f"Error getting dashboard statistics: {str(e)}")
+        return {}

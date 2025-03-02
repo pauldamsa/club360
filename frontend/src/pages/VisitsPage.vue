@@ -293,6 +293,7 @@ const totalVisitsResource = createListResource({
     filters: {
         owner: session.user
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 
