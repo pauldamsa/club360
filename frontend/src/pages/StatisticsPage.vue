@@ -1,7 +1,7 @@
 <template>
     <div class="p-6 space-y-6">
         <!-- Overview Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card class="bg-white">
                 <div class="p-4">
                     <h3 class="text-sm font-medium text-gray-500">Total Members</h3>
@@ -11,19 +11,6 @@
                     </div>
                     <div class="mt-2 text-sm text-gray-600">
                         Active: {{ stats.activeMembers }}
-                    </div>
-                </div>
-            </Card>
-
-            <Card class="bg-white">
-                <div class="p-4">
-                    <h3 class="text-sm font-medium text-gray-500">Total Coaches</h3>
-                    <div class="mt-2 flex items-center justify-between">
-                        <div class="text-2xl font-semibold">{{ stats.totalCoaches }}</div>
-                        <FeatherIcon name="user-check" class="w-8 h-8 text-green-500" />
-                    </div>
-                    <div class="mt-2 text-sm text-gray-600">
-                        Active: {{ stats.activeCoaches }}
                     </div>
                 </div>
             </Card>
@@ -58,58 +45,68 @@
         <!-- Visits Chart -->
         <Card class="bg-white">
             <div class="p-4">
-                <h2 class="text-lg font-medium mb-4">Visits Trend</h2>
-                <div class="h-64">
-                    <!-- Add your chart component here -->
-                    <div class="text-center text-gray-500">Chart Coming Soon</div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-medium">Daily Visits</h2>
+                    <select 
+                        v-model="selectedMonth" 
+                        class="rounded-md border-gray-300"
+                        @change="loadChart"
+                    >
+                        <option v-for="month in lastSixMonths" :key="month.value" :value="month.value">
+                            {{ month.label }}
+                        </option>
+                    </select>
+                </div>
+                <div class="h-[500px]"> 
+                    <canvas ref="chartRef"></canvas>
                 </div>
             </div>
         </Card>
 
         <!-- Member Sources -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card class="bg-white">
-                <div class="p-4">
-                    <h2 class="text-lg font-medium mb-4">Member Sources</h2>
-                    <table class="min-w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(count, source) in stats.memberSources" :key="source">
-                                <td class="py-2">{{ source }}</td>
-                                <td class="py-2 text-right">
-                                    <Badge :label="count" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
-
-            <!-- Stock Overview -->
-            <Card class="bg-white">
-                <div class="p-4">
-                    <h2 class="text-lg font-medium mb-4">Current Stock</h2>
-                    <table class="min-w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(stock, product) in stats.currentStock" :key="product">
-                                <td class="py-2">{{ product }}</td>
-                                <td class="py-2 text-right">
-                                    <Badge 
-                                        :label="stock"
-                                        :variant="stock < 10 ? 'danger' : 'solid'"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
-        </div>
+        <Card class="bg-white">
+            <div class="p-4">
+                <h2 class="text-lg font-medium mb-4">Member Sources</h2>
+                <table class="min-w-full">
+                    <tbody class="divide-y divide-gray-200">
+                        <tr v-for="(count, source) in stats.memberSources" :key="source">
+                            <td class="py-2">{{ source }}</td>
+                            <td class="py-2 text-right">
+                                <Badge :label="count" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </Card>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { Card, Badge, FeatherIcon, createResource } from 'frappe-ui';
+import { 
+    Chart as ChartJS, 
+    CategoryScale, 
+    LinearScale, 
+    PointElement, 
+    LineElement, 
+    Title, 
+    Tooltip, 
+    Legend,
+    LineController  // Add this import
+} from 'chart.js';
+
+ChartJS.register(
+    CategoryScale, 
+    LinearScale, 
+    PointElement, 
+    LineElement, 
+    Title, 
+    Tooltip, 
+    Legend,
+    LineController
+);
 
 const stats = ref({
     totalMembers: 0,
@@ -126,14 +123,76 @@ const stats = ref({
         'Referral': 0,
         'Active Contact': 0,
         'Roadshow': 0
-    },
-    currentStock: {
-        'Formula 1': 0,
-        'Herbal Tea': 0,
-        'Aloe': 0,
-        'PDM': 0
     }
 });
+
+const chartRef = ref(null);
+let chart = ref(null);
+
+const selectedMonth = ref(new Date().toISOString().slice(0, 7)); // Format: YYYY-MM
+
+// Updated lastSixMonths computed
+const lastSixMonths = computed(() => {
+    const months = [];
+    const date = new Date();
+    
+    // Get current month in YYYY-MM format and set as default
+    const currentMonth = date.toISOString().slice(0, 7);
+    selectedMonth.value = currentMonth;
+    
+    // Start from current month and go backwards
+    for (let i = 0; i < 6; i++) {
+        // Fix: Create new date for each iteration to avoid mutation
+        const currentDate = new Date();
+        // Fix: Set to first day of month to avoid date issues
+        currentDate.setDate(1);
+        // Fix: Use setMonth instead of calculating with subtraction
+        currentDate.setMonth(currentDate.getMonth() - i);
+        
+        const monthValue = currentDate.toISOString().slice(0, 7);
+        months.push({
+            label: currentDate.toLocaleString('en', { month: 'long', year: 'numeric' }),
+            value: monthValue
+        });
+    }
+    console.log(months);
+    return months;
+});
+
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                stepSize: 1
+            },
+            title: {
+                display: true,
+                text: 'Number of Visits'
+            }
+        },
+        x: {
+            title: {
+                display: true,
+                text: 'Day of Month'
+            }
+        }
+    },
+    plugins: {
+        legend: {
+            display: false
+        },
+        tooltip: {
+            callbacks: {
+                title: (items) => {
+                    return `Day ${items[0].label}`;
+                }
+            }
+        }
+    }
+};
 
 const statisticsResource = createResource({
     url: 'club360.api.get_dashboard_statistics',
@@ -142,7 +201,50 @@ const statisticsResource = createResource({
     }
 });
 
+const visitsTrendResource = createResource({
+    url: 'club360.api.get_visits_trend',
+    makeParams: () => ({
+        month: selectedMonth.value  // This will now be in YYYY-MM format
+    }),
+    onSuccess: (data) => {
+        updateChart(data);
+    }
+});
+
+function updateChart(data) {
+    if (chart.value) {
+        chart.value.destroy();
+    }
+    const ctx = chartRef.value.getContext('2d');
+    chart.value = new ChartJS(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Visits',
+                data: data.values,
+                fill: false,
+                borderColor: '#4F46E5',
+                tension: 0.3
+            }]
+        },
+        options: chartOptions
+    });
+}
+
+// Modify loadChart to be simpler
+function loadChart() {
+    visitsTrendResource.submit();
+}
+
 onMounted(() => {
     statisticsResource.submit();
+    loadChart(); // Initial load
+});
+
+onBeforeUnmount(() => {
+    if (chart.value) {
+        chart.value.destroy();
+    }
 });
 </script>

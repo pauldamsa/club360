@@ -1,6 +1,8 @@
 import frappe
 from frappe.exceptions import ValidationError
 from club360.exceptions import NoValidMembershipError, NoServingsAvailableError
+from datetime import datetime
+import calendar
 
 @frappe.whitelist()
 def add_new_club_member(club_member):
@@ -307,3 +309,55 @@ def change_club_password(new_password):
     user_doctype.new_password = new_password
     user_doctype.save(ignore_permissions=True)
     return user_doctype
+
+@frappe.whitelist()
+def get_visits_trend(month=None):
+    try:
+        current_user = frappe.session.user
+        
+        # Parse the month or use current month
+        if month:
+            # Ensure the month string is properly formatted
+            selected_date = datetime.strptime(month + '-01', '%Y-%m-%d')
+        else:
+            selected_date = datetime.now()
+        print(month)
+        print(f"Selected date: {selected_date}")
+        # Get first and last day of month
+        first_day = selected_date.replace(day=1)
+        last_day = selected_date.replace(day=calendar.monthrange(selected_date.year, selected_date.month)[1])
+        
+        # Format dates for query
+        start_date = first_day.strftime('%Y-%m-%d')
+        end_date = last_day.strftime('%Y-%m-%d')
+        print(f"Start date: {start_date}, End date: {end_date}")
+        # Get all visits for the month
+        visits = frappe.get_all('Visit',
+            filters={
+                'owner': current_user,
+                'date': ['between', [start_date, end_date]]
+            },
+            fields=['date', 'name'],
+            order_by='date'
+        )
+        print(frappe.as_json(visits))
+        # Create daily count
+        days_in_month = calendar.monthrange(selected_date.year, selected_date.month)[1]
+        daily_counts = [0] * days_in_month
+        
+        for visit in visits:
+            visit_day = visit.date.day
+            daily_counts[visit_day - 1] += 1
+            
+        return {
+            'labels': list(range(1, days_in_month + 1)),  # [1, 2, 3, ..., 30/31]
+            'values': daily_counts
+        }
+        
+    except Exception as e:
+        frappe.throw(f"Error getting visits trend: {str(e)}")
+
+
+@frappe.whitelist()
+def get_dashboard_statistics():
+    return{}
