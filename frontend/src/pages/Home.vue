@@ -136,6 +136,9 @@ const addVisitDialog = ref(null);
 const membersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 
@@ -154,6 +157,7 @@ const visitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'club_member', 'type_event', 'date'],
     filters: {
+        owner: session.user,
         date: ['>=', new Date().toISOString().split('T')[0]]
     },
     orderBy: 'date desc',
@@ -203,6 +207,7 @@ const allVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name'],
     filters: {
+        owner: session.user,
         date: ['>=', new Date().toISOString().split('T')[0]]
     },
     auto: true
@@ -222,6 +227,9 @@ function handleVisitAdded() {
 const totalVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 
@@ -234,6 +242,7 @@ const activeMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name'],
     filters: {
+        owner: session.user,
         status: 'Active'
     },
     auto: true
@@ -248,6 +257,7 @@ const referralsResource = createListResource({
     doctype: 'Club Member',
     fields: ['name'],
     filters: {
+        owner: session.user,
         source: 'Referral'
     },
     auto: true
@@ -262,6 +272,7 @@ const newReferralsResource = createListResource({
     doctype: 'Club Member',
     fields: ['name'],
     filters: {
+        owner: session.user,
         source: 'Referral',
         creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
     },
@@ -277,6 +288,7 @@ const newMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name'],
     filters: {
+        owner: session.user,
         creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
     },
     auto: true
@@ -291,6 +303,7 @@ const lastThreeMonthsVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'date'],
     filters: {
+        owner: session.user,
         date: ['>=', new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0]]
     },
     auto: true

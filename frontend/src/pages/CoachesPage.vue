@@ -23,6 +23,7 @@ import CoachesTable from '@/components/CoachesTable.vue';
 import AddCoachDialog from '@/components/AddCoachDialog.vue';
 import { ref, computed } from 'vue';
 import { createListResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const addCoachDialog = ref(null);
 const coachesTable = ref(null);
@@ -30,6 +31,9 @@ const coachesTable = ref(null);
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 

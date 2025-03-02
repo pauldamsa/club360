@@ -27,6 +27,7 @@ import { ref, computed, nextTick } from 'vue';
 import { createListResource } from 'frappe-ui';
 import ClubMemberTable from '@/components/ClubMemberTable.vue';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
+import { session } from '@/data/session';
 
 const memberTable = ref(null);
 const addMemberDialog = ref(null);
@@ -34,6 +35,9 @@ const addMemberDialog = ref(null);
 const clubMemberResource = createListResource({
   doctype: 'Club Member',
   fields:["full_name", "first_name", "last_name", "coach", "memberships", "status"],
+  filters: {
+    owner: session.user
+  },
   auto: true
 })
 

@@ -105,6 +105,7 @@
 <script setup>
 import { ref, defineExpose, computed, defineEmits } from 'vue';
 import { Dialog, createListResource, FormControl, createResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const showDialog = ref(false);
 const formData = ref({
@@ -133,6 +134,9 @@ const isFormValid = computed(() => {
 const coachResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'id_herbalife'],
+    filters: {
+        owner: session.user
+    },
     auto: true,
 })
 
@@ -169,6 +173,9 @@ const sourceOptions = [
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'], // Added name field for ID
+    filters: {
+        owner: session.user
+    },
     auto: true,
 });
 

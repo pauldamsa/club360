@@ -61,8 +61,7 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "label": "Full Name",
-   "read_only": 1,
-   "unique": 1
+   "read_only": 1
   },
   {
    "fieldname": "source",
@@ -111,7 +110,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-03-01 19:47:36.951012",
+ "modified": "2025-03-02 13:10:10.757668",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Club Member",

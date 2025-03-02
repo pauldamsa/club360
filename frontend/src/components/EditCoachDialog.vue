@@ -91,6 +91,7 @@
 <script setup>
 import { ref, defineExpose, computed, watch } from 'vue';
 import { Dialog, FormControl, createListResource, createResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const showDialog = ref(false);
 const formData = ref({
@@ -126,6 +127,9 @@ const levelOptions = [
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'id_herbalife'],  // Added id_herbalife
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 

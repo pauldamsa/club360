@@ -107,6 +107,7 @@
 <script setup>
 import { ref, defineExpose, computed } from 'vue';
 import { Dialog, FormControl, createListResource, createResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const emit = defineEmits(['coachAdded']);
 
@@ -164,6 +165,9 @@ const roleOptions = [
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'id_herbalife'],
+    filters :{
+        owner: session.user
+    },
     auto: true
 });
 

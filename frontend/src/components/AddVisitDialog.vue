@@ -70,6 +70,7 @@
 <script setup>
 import { ref, defineExpose, computed, defineEmits } from 'vue';
 import { Dialog, FormControl, createListResource, createResource, Alert } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const emit = defineEmits(['visitAdded']);
 
@@ -91,6 +92,9 @@ const typeOptions = [
 const membersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 

@@ -128,6 +128,7 @@
 <script setup>
 import { ref, defineExpose, computed, watch } from 'vue';
 import { Dialog, createListResource, FormControl, createResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 const props = defineProps({
     memberData: {
@@ -178,12 +179,18 @@ watch(() => props.memberData, (newData) => {
 const coachResource = createListResource({
     doctype: 'Coach',
     fields: ['full_name', 'id_herbalife'],  // Added id_herbalife field
+    filters: {
+        owner: session.user
+    },
     auto: true,
 });
 
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],  // Added name field
+    filters: {
+        owner: session.user
+    },
     auto: true,
 });
 

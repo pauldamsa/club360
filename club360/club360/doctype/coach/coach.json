@@ -63,8 +63,7 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "label": "Full Name",
-   "read_only": 1,
-   "unique": 1
+   "read_only": 1
   },
   {
    "fieldname": "level",
@@ -121,7 +120,7 @@
  "index_web_pages_for_search": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2025-02-24 14:29:40.374010",
+ "modified": "2025-03-02 13:08:29.503331",
  "modified_by": "Administrator",
  "module": "Club360",
  "name": "Coach",

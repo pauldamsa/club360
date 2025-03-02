@@ -129,6 +129,7 @@
 import { createListResource, createResource, Badge, Avatar, Button, Input, Dialog } from 'frappe-ui';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { session } from '@/data/session';
 
 const router = useRouter();
 const searchTerm = ref('');
@@ -136,12 +137,10 @@ const searchTerm = ref('');
 const clubMemberResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name', 'first_name', 'last_name', 'coach', 'memberships', 'status'],
-    filters: computed(() => {
-        if (!searchTerm.value) return {};
-        return {
-            full_name: ['like', `%${searchTerm.value}%`]
-        };
-    }),
+    filters: computed(() => ({
+        owner: session.user,
+        ...(searchTerm.value ? { full_name: ['like', `%${searchTerm.value}%`] } : {})
+    })),
     orderBy: 'creation desc',
     auto: true,
     pageLength: 10,

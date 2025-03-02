@@ -95,6 +95,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { Button, FormControl, createListResource, Input, Switch, Badge } from 'frappe-ui';
 import html2canvas from 'html2canvas';
+import { session } from '@/data/session';
 
 const plannerTable = ref(null);
 const plannerData = ref({});
@@ -135,6 +136,9 @@ weekDays.value?.forEach(day => {
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 

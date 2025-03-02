@@ -34,6 +34,8 @@ class Visit(WebsiteGenerator):
 	def update_stock_coach(self):
 		club_member = frappe.get_doc("Club Member", self.club_member)
 		coach = frappe.get_doc("Coach", club_member.coach)
+		if not coach.stock:
+			raise NoServingsAvailableError(f"Coach has no products in stock!")
 		for stock_item in coach.stock:
 			if self.type_event == stock_item.type_event:
 				if stock_item.servings > 0:

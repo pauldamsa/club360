@@ -114,6 +114,7 @@
 import { createListResource, Badge, Avatar, Button, Input, Dialog, createResource } from 'frappe-ui';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { session } from '@/data/session';
 
 const router = useRouter();
 const searchTerm = ref('');
@@ -121,18 +122,19 @@ const searchTerm = ref('');
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['*'],
-    filters: computed(() => {
-        if (!searchTerm.value) return {};
-        return {
-            full_name: ['like', `%${searchTerm.value}%`]
-        };
-    }),
+    filters: computed(() => ({
+        owner: session.user,
+        ...(searchTerm.value ? { full_name: ['like', `%${searchTerm.value}%`] } : {})
+    })),
     auto: true,
 });
 
 const sponsorsResource = createListResource({
     doctype: 'Coach',
     fields: ['id_herbalife', 'full_name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 

@@ -229,11 +229,15 @@ import { Button, Card, Avatar, Badge, createListResource, Input, Select, createR
 import AddVisitDialog from '@/components/AddVisitDialog.vue';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { session } from '@/data/session';
 
 // Add club members resource for name mapping
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 
@@ -271,27 +275,24 @@ const visitsResource = createListResource({
     auto: true,
     pageLength: 10,
     pagination: true,
-    filters: computed(() => {
-        const filterObj = {};
-        if (filters.value.member) {
-            filterObj.club_member = filters.value.member.value;
-        }
-        if (filters.value.fromDate) {
-            filterObj.date = ['>=', filters.value.fromDate];
-        }
-        if (filters.value.toDate) {
-            filterObj.date = filters.value.fromDate ? 
-                ['between', [filters.value.fromDate, filters.value.toDate]] :
-                ['<=', filters.value.toDate];
-        }
-        return filterObj;
-    })
+    filters: computed(() => ({
+        owner: session.user,
+        ...(filters.value.member && { club_member: filters.value.member.value }),
+        ...(filters.value.fromDate && { date: filters.value.toDate ? 
+            ['between', [filters.value.fromDate, filters.value.toDate]] :
+            ['>=', filters.value.fromDate]
+        }),
+        ...(!filters.value.fromDate && filters.value.toDate && { date: ['<=', filters.value.toDate] })
+    }))
 });
 
 // Add total visits count resource
 const totalVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name'],
+    filters: {
+        owner: session.user
+    },
     auto: true
 });
 
@@ -416,18 +417,15 @@ const exportVisitsResource = createListResource({
     doctype: 'Visit',
     fields: ['name', 'club_member', 'date', 'type_event'],
     orderBy: 'date desc',
-    auto: false,  // Don't load automatically
-    filters: computed(() => {
-        const filterObj = {};
-        if (filters.value.fromDate) {
-            filterObj.date = filters.value.toDate ? 
-                ['between', [filters.value.fromDate, filters.value.toDate]] :
-                ['>=', filters.value.fromDate];
-        } else if (filters.value.toDate) {
-            filterObj.date = ['<=', filters.value.toDate];
-        }
-        return filterObj;
-    })
+    auto: false,
+    filters: computed(() => ({
+        owner: session.user,
+        ...(filters.value.fromDate && { date: filters.value.toDate ? 
+            ['between', [filters.value.fromDate, filters.value.toDate]] :
+            ['>=', filters.value.fromDate]
+        }),
+        ...(filters.value.toDate && !filters.value.fromDate && { date: ['<=', filters.value.toDate] })
+    }))
 });
 
 async function exportToPDF() {

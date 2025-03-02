@@ -118,12 +118,14 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { createListResource, Card, Badge, createDocumentResource } from 'frappe-ui';
+import { session } from '@/data/session';
 
 // Get list of coaches first
 const coachListResource = createListResource({
     doctype: 'Coach',
     fields: ['name', 'id_herbalife', 'full_name', 'role'],
     filters: {
+        owner: session.user,
         role: ['in', ['Junior Partner', 'Club Owner']]
     },
     auto: true,
@@ -150,7 +152,7 @@ const coachStock = computed(() => {
         stock: coach.resource.doc?.stock || {}
     }));
 });
-console.log(coachStock);
+
 // Update total stock calculation to use new structure
 const totalStock = computed(() => {
     const totals = { shake: 0, tea: 0, aloe: 0, pdm: 0 };
@@ -170,6 +172,9 @@ const stockHistoryResource = createListResource({
     doctype: 'Stock Entry',
     fields: ['name', 'data', 'coach', 'type_event', 'shake', 'aloe', 'tea', 'pdm'],
     orderBy: 'data desc',
+    filters: {
+        owner: session.user
+    },
     pageLength: 5,
     pagination: true,
     auto: true
