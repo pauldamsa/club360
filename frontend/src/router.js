@@ -9,8 +9,8 @@ const routes = [
     component: () => import('@/pages/Home.vue'),
   },
   {
-    name: 'Login',
     path: '/login',
+    name: 'LoginPage',
     component: () => import('@/pages/Login.vue'),
   },
   {
@@ -57,6 +57,11 @@ const routes = [
     name:'ReportsPage',
     path:'/statistics/reports',
     component: () => import('@/pages/ReportsPage.vue'),
+  },
+  {
+    name:'ProfileClubPage',
+    path:'/profile/club',
+    component: () => import('@/pages/ProfileClubPage.vue'),
   }
 ]
 
@@ -72,12 +77,12 @@ router.beforeEach(async (to, from, next) => {
   } catch (error) {
     isLoggedIn = false
   }
-
-  if (to.name === 'Login' && isLoggedIn) {
+  
+  if (to.name === 'LoginPage' && isLoggedIn) {
     next({ name: 'Home' })
-  } else if (to.name !== 'Login' && !isLoggedIn) {
-    next({ name: 'Login' })
-  } else {
+  } else if (to.name !== 'LoginPage' && !isLoggedIn) {
+    next({ name: 'LoginPage' })
+  }else {
     next()
   }
 })

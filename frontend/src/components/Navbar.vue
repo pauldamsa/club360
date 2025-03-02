@@ -4,7 +4,9 @@
             <div class="flex justify-between h-16">
                 <!-- Left side - Logo -->
                 <div class="flex items-center">
-                    <span class="text-xl font-bold text-gray-900">Club360</span>
+                    <router-link to="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">
+                        Club360
+                    </router-link>
                 </div>
 
                 <!-- Right side - Avatar and Logout -->
@@ -39,8 +41,11 @@ import { session } from '../data/session';
 const router = useRouter();
 
 function handleAvatarClick() {
-    // Add profile navigation or other functionality
-    console.log('Avatar clicked');
+    router.push({
+        name: 'ProfileClubPage',
+        params: { id: session.user_id }
+    })
+
 }
 
 function handleLogout() {

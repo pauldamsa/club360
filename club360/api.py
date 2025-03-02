@@ -277,3 +277,33 @@ def add_stock(stock_data):
         
     except Exception as e:
         frappe.throw(f"Error adding stock: {str(e)}")
+
+@frappe.whitelist()
+def get_club_settings():
+    club_settings = frappe.get_single('Settings')
+
+    return club_settings
+
+@frappe.whitelist()
+def update_club_settings(new_settings):
+    club_settings = frappe.get_single('Settings')
+    club_settings.shake = new_settings['shake']
+    club_settings.tea = new_settings['tea']
+    club_settings.aloe = new_settings['aloe']
+    club_settings.pdm = new_settings['pdm']
+    club_settings.save(ignore_permissions=True)
+    return club_settings
+
+@frappe.whitelist()
+def get_club_user():
+    current_user = frappe.session.user
+    user_doctype = frappe.get_doc('User', current_user)
+    return user_doctype
+
+@frappe.whitelist()
+def change_club_password(new_password):
+    current_user = frappe.session.user
+    user_doctype = frappe.get_doc('User', current_user)
+    user_doctype.new_password = new_password
+    user_doctype.save(ignore_permissions=True)
+    return user_doctype

@@ -50,7 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import { session } from '../data/session'
+import { session } from '../data/session';
+import { Button } from 'frappe-ui';
 
 function submit(e) {
   let formData = new FormData(e.target)
