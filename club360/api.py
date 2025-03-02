@@ -321,8 +321,7 @@ def get_visits_trend(month=None):
             selected_date = datetime.strptime(month + '-01', '%Y-%m-%d')
         else:
             selected_date = datetime.now()
-        print(month)
-        print(f"Selected date: {selected_date}")
+
         # Get first and last day of month
         first_day = selected_date.replace(day=1)
         last_day = selected_date.replace(day=calendar.monthrange(selected_date.year, selected_date.month)[1])
@@ -330,7 +329,7 @@ def get_visits_trend(month=None):
         # Format dates for query
         start_date = first_day.strftime('%Y-%m-%d')
         end_date = last_day.strftime('%Y-%m-%d')
-        print(f"Start date: {start_date}, End date: {end_date}")
+
         # Get all visits for the month
         visits = frappe.get_all('Visit',
             filters={
@@ -340,7 +339,7 @@ def get_visits_trend(month=None):
             fields=['date', 'name'],
             order_by='date'
         )
-        print(frappe.as_json(visits))
+
         # Create daily count
         days_in_month = calendar.monthrange(selected_date.year, selected_date.month)[1]
         daily_counts = [0] * days_in_month
@@ -357,7 +356,47 @@ def get_visits_trend(month=None):
     except Exception as e:
         frappe.throw(f"Error getting visits trend: {str(e)}")
 
-
 @frappe.whitelist()
-def get_dashboard_statistics():
-    return{}
+def get_new_members_trend(month=None):
+    try:
+        current_user = frappe.session.user
+        
+        if month:
+            selected_date = datetime.strptime(month + '-01', '%Y-%m-%d')
+        else:
+            selected_date = datetime.now()
+            
+        first_day = selected_date.replace(day=1)
+        last_day = selected_date.replace(day=calendar.monthrange(selected_date.year, selected_date.month)[1])
+        
+        start_date = first_day.strftime('%Y-%m-%d')
+        end_date = last_day.strftime('%Y-%m-%d')
+        
+        # Get all members created in this month
+        members = frappe.get_all('Club Member',
+            filters={
+                'owner': current_user,
+                'creation': ['between', [start_date, end_date]]
+            },
+            fields=['creation', 'name'],
+            order_by='creation'
+        )
+        
+        # Calculate weeks in month (always 5 to cover all cases)
+        weeks = [0] * 5
+        
+        for member in members:
+            creation_date = member.creation
+            # Calculate which week of the month (0-based)
+            week_number = (creation_date.day - 1) // 7
+            if week_number < 5:  # Safety check
+                weeks[week_number] += 1
+            
+        return {
+            'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+            'values': weeks
+        }
+        
+    except Exception as e:
+        frappe.throw(f"Error getting new members trend: {str(e)}")
+

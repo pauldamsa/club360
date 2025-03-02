@@ -40,6 +40,22 @@
                     </div>
                 </div>
             </Card>
+             <!-- Member Sources -->
+            <Card class="bg-white">
+                <div class="p-4">
+                    <h2 class="text-lg font-medium mb-4">Member Sources</h2>
+                    <table class="min-w-full">
+                        <tbody class="divide-y divide-gray-200">
+                            <tr v-for="(count, source) in stats.memberSources" :key="source">
+                                <td class="py-2">{{ source }}</td>
+                                <td class="py-2 text-right">
+                                    <Badge :label="count" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </Card>
         </div>
 
         <!-- Visits Chart -->
@@ -63,20 +79,24 @@
             </div>
         </Card>
 
-        <!-- Member Sources -->
+        <!-- New Members Chart -->
         <Card class="bg-white">
             <div class="p-4">
-                <h2 class="text-lg font-medium mb-4">Member Sources</h2>
-                <table class="min-w-full">
-                    <tbody class="divide-y divide-gray-200">
-                        <tr v-for="(count, source) in stats.memberSources" :key="source">
-                            <td class="py-2">{{ source }}</td>
-                            <td class="py-2 text-right">
-                                <Badge :label="count" />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-medium">New Members Trend</h2>
+                    <select 
+                        v-model="selectedMembersMonth" 
+                        class="rounded-md border-gray-300"
+                        @change="loadMembersChart"
+                    >
+                        <option v-for="month in lastSixMonths" :key="month.value" :value="month.value">
+                            {{ month.label }}
+                        </option>
+                    </select>
+                </div>
+                <div class="h-[500px]"> 
+                    <canvas ref="membersChartRef"></canvas>
+                </div>
             </div>
         </Card>
     </div>
@@ -94,7 +114,9 @@ import {
     Title, 
     Tooltip, 
     Legend,
-    LineController  // Add this import
+    LineController,
+    BarController,
+    BarElement
 } from 'chart.js';
 
 ChartJS.register(
@@ -105,8 +127,11 @@ ChartJS.register(
     Title, 
     Tooltip, 
     Legend,
-    LineController
+    LineController,
+    BarController,
+    BarElement
 );
+
 
 const stats = ref({
     totalMembers: 0,
@@ -155,7 +180,6 @@ const lastSixMonths = computed(() => {
             value: monthValue
         });
     }
-    console.log(months);
     return months;
 });
 
@@ -237,14 +261,80 @@ function loadChart() {
     visitsTrendResource.submit();
 }
 
+const membersChartRef = ref(null);
+let membersChart = ref(null);
+const selectedMembersMonth = ref(new Date().toISOString().slice(0, 7));
+
+const membersChartOptions = {
+    ...chartOptions,
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                stepSize: 1
+            },
+            title: {
+                display: true,
+                text: 'Number of New Club Members'  // Changed from 'Number of Visits'
+            }
+        },
+        x: {
+            title: {
+                display: true,
+                text: 'Weeks'
+            }
+        }
+    }
+};
+
+const newMembersTrendResource = createResource({
+    url: 'club360.api.get_new_members_trend',
+    makeParams: () => ({
+        month: selectedMembersMonth.value
+    }),
+    onSuccess: (data) => {
+        updateMembersChart(data);
+    }
+});
+
+function updateMembersChart(data) {
+    if (membersChart.value) {
+        membersChart.value.destroy();
+    }
+    
+    const ctx = membersChartRef.value.getContext('2d');
+    membersChart.value = new ChartJS(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'New Members',
+                data: data.values,
+                fill: false,
+                borderColor: '#10B981', // Green color
+                tension: 0.3
+            }]
+        },
+        options: membersChartOptions
+    });
+}
+
+function loadMembersChart() {
+    newMembersTrendResource.submit();
+}
+
 onMounted(() => {
     statisticsResource.submit();
     loadChart(); // Initial load
+    loadMembersChart(); // Initial load for members chart
 });
 
 onBeforeUnmount(() => {
     if (chart.value) {
         chart.value.destroy();
+    }
+    if (membersChart.value) {
+        membersChart.value.destroy();
     }
 });
 </script>
