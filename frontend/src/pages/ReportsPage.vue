@@ -1,88 +1,45 @@
 <template>
-    <div class="p-6">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900">Reports</h1>
-            <p class="mt-2 text-gray-600">Generate and download club reports</p>
-        </div>
-        <h1>ADD THE VIEW CLIENTS TREE IN THE SELECTED MONTHS</h1>
-        <!-- Filters Section -->
-        <Card class="mb-6">
-            <div class="p-4 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormControl
-                        type="select"
-                        label="Report Type"
-                        v-model="filters.reportType"
-                        :options="reportTypes"
-                        placeholder="Select report type"
-                    />
-                    <FormControl
-                        type="date"
-                        label="From Date"
-                        v-model="filters.fromDate"
-                    />
-                    <FormControl
-                        type="date"
-                        label="To Date"
-                        v-model="filters.toDate"
-                    />
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <Button 
-                        variant="outline" 
-                        label="Reset" 
-                        @click="resetFilters"
-                    />
-                    <Button 
-                        variant="solid" 
-                        label="Generate Report"
-                        icon="file-text"
-                        :loading="generating"
-                        @click="generateReport"
-                    />
-                </div>
+    <div class="p-6 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <h1 class="text-2xl font-bold text-gray-900">Network Hierarchy Report</h1>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <FormControl
+                    type="autocomplete"
+                    :options="coachOptions"
+                    placeholder="Select Coach"
+                    v-model="selectedCoach"
+                    class="w-64"
+                />
+                <FormControl
+                    type="select"
+                    :options="monthOptions"
+                    placeholder="Select Month"
+                    v-model="selectedMonth"
+                    class="w-48"
+                />
+                <Button 
+                    variant="solid"
+                    label="Generate"
+                    :loading="reportResource.loading"
+                    @click="loadReport"
+                />
             </div>
-        </Card>
+        </div>
 
-        <!-- Report Preview Section -->
-        <Card v-if="reportData.length > 0">
+        <Card class="bg-white">
             <div class="p-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-medium">Report Preview</h2>
-                    <Button
-                        variant="solid"
-                        label="Export to PDF"
-                        icon="download"
-                        @click="exportToPDF"
-                    />
+                <div v-if="!networkData.length" class="text-center py-8 text-gray-500">
+                    No data available. Please generate a report.
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th v-for="header in tableHeaders" 
-                                    :key="header"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                                >
-                                    {{ header }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="(row, index) in reportData" 
-                                :key="index"
-                                class="hover:bg-gray-50"
-                            >
-                                <td v-for="(value, key) in row" 
-                                    :key="key"
-                                    class="px-6 py-4 whitespace-nowrap text-sm"
-                                >
-                                    {{ value }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div v-else class="space-y-4">
+                    <NetworkNode 
+                        v-for="node in networkData" 
+                        :key="node.id"
+                        :node="node"
+                        :expanded-nodes="expandedNodes"
+                        @toggle="toggleNode"
+                        class="border rounded-lg"
+                    />
                 </div>
             </div>
         </Card>
@@ -91,92 +48,84 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Card, Button, FormControl, createResource } from 'frappe-ui';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { Card, FormControl, Button, createResource, createListResource } from 'frappe-ui';
+import { format } from 'date-fns';
+import NetworkNode from '../components/NetworkNode.vue';
+import { session } from '../data/session';
 
-const filters = ref({
-    reportType: '',
-    fromDate: '',
-    toDate: ''
+// Coach options resource
+const coachResource = createListResource({
+    doctype: 'Coach',
+    fields: ['id_herbalife', 'full_name'],
+    filters: {
+        owner: session.user
+    },
+    auto: true,
 });
 
-const generating = ref(false);
-const reportData = ref([]);
+const coachOptions = computed(() => {
+    if (!coachResource.list.data) return [];
+    return [
+        { label: 'All Coaches', value: '' },
+        ...coachResource.list.data.map(coach => ({
+            label: coach.full_name,
+            value: coach.id_herbalife
+        }))
+    ];
+});
 
-const reportTypes = [
-    { label: 'Visits Summary', value: 'visits' },
-    { label: 'Members Activity', value: 'members' },
-    { label: 'Referrals Overview', value: 'referrals' }
-];
-
-const tableHeaders = computed(() => {
-    switch (filters.value.reportType) {
-        case 'visits':
-            return ['Date', 'Member', 'Type', 'Coach'];
-        case 'members':
-            return ['Member', 'Status', 'Last Visit', 'Total Visits'];
-        case 'referrals':
-            return ['Member', 'Referrals Count', 'Active Referrals'];
-        default:
-            return [];
+// Month options with current month selected
+const monthOptions = computed(() => {
+    const options = [];
+    const today = new Date();
+    
+    for (let i = 0; i < 6; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        options.push({
+            label: format(date, 'MMMM yyyy'),
+            value: format(date, 'yyyy-MM-dd')
+        });
     }
+    
+    return [
+        { label: 'All Time', value: '' },
+        ...options
+    ];
 });
 
-// Add report generation resource
+const selectedCoach = ref('');
+const selectedMonth = ref(format(new Date(), 'yyyy-MM-dd')); // Current month selected
+const networkData = ref([]);
+const expandedNodes = ref(new Set()); // Track expanded nodes
+
 const reportResource = createResource({
-    url: 'club360.api.generate_report',
-    makeParams() {
-        return {
-            type: filters.value.reportType,
-            from_date: filters.value.fromDate,
-            to_date: filters.value.toDate
-        };
-    },
-    onSuccess(response) {
-        reportData.value = response.data || [];
-        generating.value = false;
-    },
-    onError(error) {
-        console.error('Error generating report:', error);
-        generating.value = false;
+    url: 'club360.api.get_network_hierarchy',
+    makeParams: () => ({
+        filters: {
+            coach: selectedCoach.value,
+            date: selectedMonth.value
+        }
+    }),
+    onSuccess: (data) => {
+        networkData.value = data;
+        // Expand first level by default
+        data.forEach(node => expandedNodes.value.add(node.id));
     }
 });
 
-function resetFilters() {
-    filters.value = {
-        reportType: '',
-        fromDate: '',
-        toDate: ''
-    };
-    reportData.value = [];
-}
-
-function generateReport() {
-    generating.value = true;
+function loadReport() {
+    expandedNodes.value.clear(); // Reset expanded state
     reportResource.submit();
 }
 
-function exportToPDF() {
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(16);
-    doc.text(`${filters.value.reportType.toUpperCase()} REPORT`, 14, 15);
-    
-    // Add date range
-    doc.setFontSize(11);
-    doc.text(`Period: ${filters.value.fromDate} to ${filters.value.toDate}`, 14, 25);
-    
-    // Generate table
-    autoTable(doc, {
-        head: [tableHeaders.value],
-        body: reportData.value.map(row => Object.values(row)),
-        startY: 35,
-        theme: 'grid'
-    });
-    
-    // Save PDF
-    doc.save(`club360-${filters.value.reportType}-report.pdf`);
+function toggleNode(nodeId) {
+    if (expandedNodes.value.has(nodeId)) {
+        expandedNodes.value.delete(nodeId);
+    } else {
+        expandedNodes.value.add(nodeId);
+    }
 }
+
+// Initial load
+loadReport();
 </script>
