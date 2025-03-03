@@ -335,6 +335,7 @@ import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, cre
 import EditMemberDialog from '@/components/EditMemberDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
+import { session } from '@/data/session';
 
 const isEditing = ref(false);
 const editableMemberships = ref([]);
@@ -498,11 +499,15 @@ const coachName = computed(() => {
 const membersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],
+    filters:{
+        owner: session.user
+    },
     auto: true
 });
 
 // Add computed for referral name
 const referralName = computed(() => {
+
     if (!clubMemberDoc.value?.referral_of || !membersResource.list.data) return 'No Referral';
     const referral = membersResource.list.data.find(m => m.name === clubMemberDoc.value.referral_of);
     return referral?.full_name || 'No Referral';
