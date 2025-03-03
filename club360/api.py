@@ -493,15 +493,16 @@ def promote_to_coach(member_data):
         # Get all related members including nested referrals
         all_related_members = get_all_related_members(member.name)
         
-        # Store all referral relationships before deletion
-        referral_relationships = []
+        # Store referral relationships and their hierarchy
+        referral_hierarchy = {}
         for member_id in all_related_members:
             member_doc = frappe.get_doc('Club Member', member_id)
-            referral_relationships.append({
+            referral_hierarchy[member_id] = {
                 'member': member_id,
                 'referral_of': member_doc.referral_of,
-                'coach': member_doc.coach
-            })
+                'coach': member_doc.coach,
+                'original_referrer': member_doc.referral_of
+            }
 
         # Store all visits
         all_visits = []
@@ -519,7 +520,7 @@ def promote_to_coach(member_data):
         """, {'members': all_related_members})
         frappe.db.commit()
 
-        # Remove all referral connections
+        # Temporarily remove referral connections
         frappe.db.sql("""
             UPDATE `tabClub Member` 
             SET referral_of = NULL 
@@ -544,11 +545,20 @@ def promote_to_coach(member_data):
         member.delete(ignore_permissions=True)
         frappe.db.commit()
 
-        # Restore referral relationships and update coach
-        for rel in referral_relationships:
-            if rel['member'] != member.name:  # Don't restore the promoted member
-                member_doc = frappe.get_doc('Club Member', rel['member'])
+        # Restore referral relationships maintaining the hierarchy
+        for member_id, rel_data in referral_hierarchy.items():
+            if member_id != member.name:  # Skip the promoted member
+                member_doc = frappe.get_doc('Club Member', member_id)
                 member_doc.coach = new_coach.id_herbalife
+                
+                # If this member was referring to the promoted member,
+                # remove the referral connection
+                if rel_data['referral_of'] == member.name:
+                    member_doc.referral_of = None
+                else:
+                    # Otherwise keep the original referral relationship
+                    member_doc.referral_of = rel_data['original_referrer']
+                
                 member_doc.save(ignore_permissions=True)
 
         # Restore all visits
@@ -566,7 +576,7 @@ def promote_to_coach(member_data):
             "message": "Successfully promoted to coach",
             "coach": new_coach.id_herbalife,
             "visits_restored": len(all_visits),
-            "relationships_restored": len(referral_relationships) - 1  # Subtract 1 for the promoted member
+            "relationships_maintained": len(referral_hierarchy) - 1
         }
         
     except Exception as e:

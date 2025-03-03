@@ -12,7 +12,7 @@
 
                 <!-- Right side - Avatar and Logout -->
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm font-medium text-gray-700">
+                    <span class="text-sm font-medium text-gray-700 hidden md:inline">
                         {{ session.user }}
                     </span>
                     <Avatar

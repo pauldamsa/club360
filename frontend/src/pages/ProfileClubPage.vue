@@ -1,119 +1,129 @@
 <template>
-    <div class="p-6 max-w-4xl mx-auto">
-        <!-- Add success messages at the top -->
-        <div v-if="successMessage" class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+    <div class="p-4 md:p-6 max-w-4xl mx-auto">
+        <!-- Success Message -->
+        <div v-if="successMessage" class="mb-4 p-3 md:p-4 bg-green-100 text-green-700 rounded-lg text-sm md:text-base">
             {{ successMessage }}
         </div>
-        <Card class="bg-white shadow-lg">
-            <div class="p-6 space-y-8">
-                <!-- Club Info Section -->
-                <div>
-                    <h2 class="text-xl font-semibold mb-4">Club Information</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormControl
-                            label="Club Email"
-                            type="email"
-                            v-model="profileData.email"
-                            :disabled="true"
-                        />
-                        <FormControl
-                            label="First Name"
-                            type="text"
-                            v-model="profileData.first_name"
-                            :disabled="true"
-                        />
-                        <FormControl
-                            label="Last Name"
-                            type="text"
-                            v-model="profileData.last_name"
-                            :disabled="true"
-                        />
-                    </div>
-                </div>
 
-                <!-- Password Change Section -->
-                <div>
-                    <h2 class="text-xl font-semibold mb-4">Change Password</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="relative">
+        <Card class="bg-white shadow-lg">
+            <div class="p-4 md:p-6 space-y-6 md:space-y-8">
+                <!-- Profile Sections -->
+                <div class="space-y-6">
+                    <!-- Club Info Section -->
+                    <section>
+                        <h2 class="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-900">
+                            Club Information
+                        </h2>
+                        <div class="space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
                             <FormControl
-                                :type="showNewPassword ? 'text' : 'password'"
-                                label="New Password"
-                                v-model="passwordData.new"
-                                :error="passwordErrors.new"
+                                label="Club Email"
+                                type="email"
+                                v-model="profileData.email"
+                                :disabled="true"
                             />
-                            <button 
-                                type="button"
-                                class="absolute right-3 top-1/2 transform translate-y-1 text-gray-500"
-                                @click="showNewPassword = !showNewPassword"
-                            >
-                                <FeatherIcon :name="showNewPassword ? 'eye-off' : 'eye'" class="w-4 h-4" />
-                            </button>
-                        </div>
-                        <div class="relative">
                             <FormControl
-                                :type="showConfirmPassword ? 'text' : 'password'"
-                                label="Confirm New Password"
-                                v-model="passwordData.confirm"
-                                :error="passwordErrors.confirm"
+                                label="First Name"
+                                type="text"
+                                v-model="profileData.first_name"
+                                :disabled="true"
                             />
-                            <button 
-                                type="button"
-                                class="absolute right-3 top-1/2 transform translate-y-1 text-gray-500"
-                                @click="showConfirmPassword = !showConfirmPassword"
-                            >
-                                <FeatherIcon :name="showConfirmPassword ? 'eye-off' : 'eye'" class="w-4 h-4" />
-                            </button>
+                            <FormControl
+                                label="Last Name"
+                                type="text"
+                                v-model="profileData.last_name"
+                                :disabled="true"
+                            />
                         </div>
-                        <div class="flex items-end">
+                    </section>
+
+                    <!-- Password Section -->
+                    <section class="pt-4 border-t">
+                        <h2 class="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-900">
+                            Change Password
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <FormControl
+                                    :type="showNewPassword ? 'text' : 'password'"
+                                    label="New Password"
+                                    v-model="passwordData.new"
+                                    :error="passwordErrors.new"
+                                />
+                                <button 
+                                    type="button"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1 text-gray-500"
+                                    @click="showNewPassword = !showNewPassword"
+                                >
+                                    <FeatherIcon :name="showNewPassword ? 'eye-off' : 'eye'" class="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <FormControl
+                                    :type="showConfirmPassword ? 'text' : 'password'"
+                                    label="Confirm Password"
+                                    v-model="passwordData.confirm"
+                                    :error="passwordErrors.confirm"
+                                />
+                                <button 
+                                    type="button"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1 text-gray-500"
+                                    @click="showConfirmPassword = !showConfirmPassword"
+                                >
+                                    <FeatherIcon :name="showConfirmPassword ? 'eye-off' : 'eye'" class="w-4 h-4" />
+                                </button>
+                            </div>
                             <Button
                                 label="Change Password"
                                 variant="solid"
                                 :loading="changePasswordResource.loading"
                                 @click="handlePasswordChange"
+                                class="w-full md:w-auto"
                             />
                         </div>
-                    </div>
-                </div>
+                    </section>
 
-                <!-- Default Stock Values Section -->
-                <div>
-                    <h2 class="text-xl font-semibold mb-4">Default Stock Products Servings</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormControl
-                            label="Formula 1 (Shake)"
-                            type="number"
-                            v-model="settingsData.shake"
-                            min="0"
-                        />
-                        <FormControl
-                            label="Herbal Tea"
-                            type="number"
-                            v-model="settingsData.tea"
-                            min="0"
-                        />
-                        <FormControl
-                            label="Aloe"
-                            type="number"
-                            v-model="settingsData.aloe"
-                            min="0"
-                        />
-                        <FormControl
-                            label="PDM"
-                            type="number"
-                            v-model="settingsData.pdm"
-                            min="0"
-                        />
-                    </div>
+                    <!-- Stock Values Section -->
+                    <section class="pt-4 border-t">
+                        <h2 class="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-900">
+                            Default Product Servings
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4 md:grid-cols-2 md:gap-6">
+                            <FormControl
+                                label="Formula 1"
+                                type="number"
+                                v-model="settingsData.shake"
+                                min="0"
+                            />
+                            <FormControl
+                                label="Herbal Tea"
+                                type="number"
+                                v-model="settingsData.tea"
+                                min="0"
+                            />
+                            <FormControl
+                                label="Aloe"
+                                type="number"
+                                v-model="settingsData.aloe"
+                                min="0"
+                            />
+                            <FormControl
+                                label="PDM"
+                                type="number"
+                                v-model="settingsData.pdm"
+                                min="0"
+                            />
+                        </div>
+                    </section>
                 </div>
 
                 <!-- Save Button -->
-                <div class="flex justify-end pt-4 border-t">
+                <div class="pt-4 border-t">
                     <Button
                         label="Save Changes"
                         variant="solid"
                         :loading="saveChangesResource.loading"
                         @click="handleSaveChanges"
+                        class="w-full md:w-auto"
                     />
                 </div>
             </div>
