@@ -1,81 +1,87 @@
 <template>
-    <div class="p-6 space-y-6">
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6">
         <!-- Overview Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <!-- Total Members Card -->
             <Card class="bg-white">
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <h3 class="text-sm font-medium text-gray-500">Total Members</h3>
                     <div class="mt-2 flex items-center justify-between">
-                        <div class="text-2xl font-semibold">{{ stats.totalMembers }}</div>
-                        <FeatherIcon name="users" class="w-8 h-8 text-blue-500" />
+                        <div class="text-xl md:text-2xl font-semibold">{{ stats.totalMembers }}</div>
+                        <FeatherIcon name="users" class="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
                     </div>
-                    <div class="mt-2 text-sm text-gray-600">
+                    <div class="mt-2 text-xs md:text-sm text-gray-600">
                         Active: {{ stats.activeMembers }}
                     </div>
                 </div>
             </Card>
 
             <Card class="bg-white">
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <h3 class="text-sm font-medium text-gray-500">Total Visits</h3>
                     <div class="mt-2 flex items-center justify-between">
-                        <div class="text-2xl font-semibold">{{ stats.totalVisits }}</div>
-                        <FeatherIcon name="check-square" class="w-8 h-8 text-purple-500" />
+                        <div class="text-xl md:text-2xl font-semibold">{{ stats.totalVisits }}</div>
+                        <FeatherIcon name="check-square" class="w-6 h-6 md:w-8 md:h-8 text-purple-500" />
                     </div>
-                    <div class="mt-2 text-sm text-gray-600">
+                    <div class="mt-2 text-xs md:text-sm text-gray-600">
                         This Month: {{ stats.visitsThisMonth }}
                     </div>
                 </div>
             </Card>
 
             <Card class="bg-white">
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <h3 class="text-sm font-medium text-gray-500">Total Coaches</h3>
                     <div class="mt-2 flex items-center justify-between">
-                        <div class="text-2xl font-semibold">{{ stats.totalCoaches }}</div>
-                        <FeatherIcon name="award" class="w-8 h-8 text-yellow-500" />
+                        <div class="text-xl md:text-2xl font-semibold">{{ stats.totalCoaches }}</div>
+                        <FeatherIcon name="award" class="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
                     </div>
                 </div>
             </Card>
              <!-- Member Sources -->
-            <Card class="bg-white">
-                <div class="p-4">
-                    <h2 class="text-lg font-medium mb-4">Member Sources</h2>
-                    <table class="min-w-full">
-                        <thead>
-                            <tr class="text-sm text-gray-500 border-b">
-                                <th class="text-left pb-2">Source</th>
-                                <th class="text-right pb-2">Total</th>
-                                <th class="text-right pb-2">This Month</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(counts, source) in stats.memberSources" :key="source">
-                                <td class="py-2">{{ source }}</td>
-                                <td class="py-2 text-right">
-                                    <Badge :label="counts.total" />
-                                </td>
-                                <td class="py-2 text-right">
-                                    <Badge 
-                                        :label="counts.thisMonth" 
-                                        :class="counts.thisMonth > 0 ? 'bg-green-100 text-green-800' : ''"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <Card class="bg-white sm:col-span-2 lg:col-span-1">
+                <div class="p-3 md:p-4">
+                    <h2 class="text-base md:text-lg font-medium mb-3 md:mb-4">Member Sources</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="text-xs md:text-sm text-gray-500 border-b">
+                                    <th class="text-left pb-2">Source</th>
+                                    <th class="text-right pb-2">Total</th>
+                                    <th class="text-right pb-2">This Month</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="(counts, source) in stats.memberSources" :key="source" class="text-sm">
+                                    <td class="py-2">{{ source }}</td>
+                                    <td class="py-2 text-right">
+                                        <Badge :label="counts.total" class="text-xs md:text-sm" />
+                                    </td>
+                                    <td class="py-2 text-right">
+                                        <Badge 
+                                            :label="counts.thisMonth" 
+                                            :class="[
+                                                counts.thisMonth > 0 ? 'bg-green-100 text-green-800' : '',
+                                                'text-xs md:text-sm'
+                                            ]"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </Card>
         </div>
 
         <!-- Visits Chart -->
         <Card class="bg-white">
-            <div class="p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-medium">Daily Visits</h2>
+            <div class="p-3 md:p-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 mb-4">
+                    <h2 class="text-base md:text-lg font-medium">Daily Visits</h2>
                     <select 
                         v-model="selectedMonth" 
-                        class="rounded-md border-gray-300"
+                        class="rounded-md border-gray-300 w-full sm:w-auto"
                         @change="loadChart"
                     >
                         <option v-for="month in lastSixMonths" :key="month.value" :value="month.value">
@@ -83,7 +89,7 @@
                         </option>
                     </select>
                 </div>
-                <div class="h-[500px]"> 
+                <div class="h-[300px] md:h-[500px]"> 
                     <canvas ref="chartRef"></canvas>
                 </div>
             </div>
@@ -91,12 +97,12 @@
 
         <!-- New Members Chart -->
         <Card class="bg-white">
-            <div class="p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-medium">New Members Trend</h2>
+            <div class="p-3 md:p-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 mb-4">
+                    <h2 class="text-base md:text-lg font-medium">New Members Trend</h2>
                     <select 
                         v-model="selectedMembersMonth" 
-                        class="rounded-md border-gray-300"
+                        class="rounded-md border-gray-300 w-full sm:w-auto"
                         @change="loadMembersChart"
                     >
                         <option v-for="month in lastSixMonths" :key="month.value" :value="month.value">
@@ -104,7 +110,7 @@
                         </option>
                     </select>
                 </div>
-                <div class="h-[500px]"> 
+                <div class="h-[300px] md:h-[500px]"> 
                     <canvas ref="membersChartRef"></canvas>
                 </div>
             </div>

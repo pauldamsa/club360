@@ -1,32 +1,76 @@
 <template>
-    <div class="p-6 space-y-6">
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Weekly Planner</h1>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900">Weekly Planner</h1>
                 <p class="text-sm text-gray-600 mt-1">
                     {{ weekDates }}
                 </p>
             </div>
-            <div class="flex space-x-2">
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Button 
                     variant="solid" 
                     label="Generate Random Flavours" 
                     icon="shuffle"
                     @click="generateRandomFlavours"
+                    class="w-full sm:w-auto"
                 />
                 <Button 
                     variant="solid" 
                     label="Export as PNG" 
                     icon="download"
                     @click="exportToPng"
+                    class="w-full sm:w-auto"
                 />
             </div>
         </div>
 
-        <!-- Planner Table -->
-        <div class="overflow-x-auto">  <!-- Added this wrapper div -->
-            <div ref="plannerTable" class="bg-white rounded-lg shadow min-w-[800px]">  <!-- Added min-width -->
+        <!-- Mobile View -->
+        <div class="block lg:hidden">
+            <div class="space-y-6">
+                <div v-for="day in weekDays" :key="day.date" class="bg-white rounded-lg shadow">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium">{{ day.name }}</h3>
+                                <p class="text-sm text-gray-500">{{ day.date }}</p>
+                            </div>
+                            <Switch v-model="activeDays[day.date]" />
+                        </div>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <div v-if="!activeDays[day.date]" class="text-center py-4 text-gray-500 bg-gray-50 rounded">
+                            Day Off
+                        </div>
+                        <template v-else>
+                            <div v-for="activity in activities" :key="activity" class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">{{ activity }}</label>
+                                <FormControl
+                                    v-if="activity !== 'Shakes Flavours'"
+                                    type="autocomplete"
+                                    v-model="plannerData[`${activity}-${day.date}`]"
+                                    :options="coachOptions"
+                                    placeholder="Select coach"
+                                    class="w-full"
+                                />
+                                <textarea
+                                    v-else
+                                    v-model="plannerData[`${activity}-${day.date}`]"
+                                    placeholder="Enter flavours"
+                                    class="w-full min-h-[60px] p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows="2"
+                                ></textarea>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="hidden lg:block overflow-x-auto">
+            <div ref="plannerTable" class="bg-white rounded-lg shadow min-w-[800px]">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -82,9 +126,9 @@
         </div>
 
         <!-- Flavours List -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
             <h2 class="text-lg font-medium text-gray-900 mb-4">Available Flavours</h2>
-            <p class="text-gray-600">
+            <p class="text-sm md:text-base text-gray-600">
                 {{ flavours.join(', ') }}
             </p>
         </div>

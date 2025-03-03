@@ -1,52 +1,55 @@
 <template>
     <div class="network-node">
         <div 
-            class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+            class="flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 cursor-pointer hover:bg-gray-50"
             @click="$emit('toggle', node.id)"
         >
-            <div class="flex items-center space-x-3">
+            <!-- Main Info -->
+            <div class="flex items-center space-x-3 mb-2 sm:mb-0">
                 <FeatherIcon 
                     :name="getNodeIcon"
-                    class="w-5 h-5"
+                    class="w-5 h-5 flex-shrink-0"
                     :class="getNodeColorClass"
                 />
-                <span class="font-medium">{{ node.name }}</span>
-                <div class="flex items-center space-x-2">
-                    <Badge 
-                        v-if="node.type === 'coach'"
-                        :label="`Level ${node.level}`"
-                        class="bg-yellow-100 text-yellow-800"
-                    />
-                    <Badge 
-                        v-else
-                        :label="node.status"
-                        :class="getStatusClass"
-                    />
-                    <Badge 
-                        v-if="node.direct_count > 0"
-                        :label="`${node.direct_count} direct`"
-                        class="bg-blue-100 text-blue-800"
-                    />
-                    <Badge 
-                        v-if="node.total_count > node.direct_count"
-                        :label="`${node.total_count} total`"
-                        class="bg-purple-100 text-purple-800"
-                    />
-                </div>
-                <span v-if="node.date" class="text-sm text-gray-500">
+                <span class="font-medium truncate">{{ node.name }}</span>
+            </div>
+
+            <!-- Badges -->
+            <div class="flex flex-wrap items-center gap-2">
+                <Badge 
+                    v-if="node.type === 'coach'"
+                    :label="`Level ${node.level}`"
+                    class="bg-yellow-100 text-yellow-800 text-xs"
+                />
+                <Badge 
+                    v-else
+                    :label="node.status"
+                    :class="[getStatusClass, 'text-xs']"
+                />
+                <Badge 
+                    v-if="node.direct_count > 0"
+                    :label="`${node.direct_count} direct`"
+                    class="bg-blue-100 text-blue-800 text-xs"
+                />
+                <Badge 
+                    v-if="node.total_count > node.direct_count"
+                    :label="`${node.total_count} total`"
+                    class="bg-purple-100 text-purple-800 text-xs"
+                />
+                <span v-if="node.date" class="text-xs text-gray-500 hidden sm:inline">
                     {{ formatDate(node.date) }}
                 </span>
+                <FeatherIcon 
+                    v-if="node.children?.length"
+                    :name="isExpanded ? 'chevron-down' : 'chevron-right'" 
+                    class="w-5 h-5 text-gray-400 ml-auto sm:ml-0"
+                />
             </div>
-            <FeatherIcon 
-                v-if="node.children?.length"
-                :name="isExpanded ? 'chevron-down' : 'chevron-right'" 
-                class="w-5 h-5 text-gray-400"
-            />
         </div>
 
         <div 
             v-if="isExpanded && node.children?.length" 
-            class="pl-8 space-y-2 pb-2 border-l-2"
+            class="pl-4 sm:pl-8 space-y-2 pb-2 border-l-2"
         >
             <NetworkNode 
                 v-for="child in node.children"

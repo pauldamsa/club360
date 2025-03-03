@@ -1,15 +1,15 @@
 <template>
-    <div class="p-6 space-y-6">
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6">
         <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">Network Hierarchy</h1>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900">Network Hierarchy</h1>
         </div>
 
-        <Card class="bg-white">
-            <div class="p-4">
-                <div v-if="!networkData.length" class="text-center py-8 text-gray-500">
+        <Card class="bg-white overflow-x-auto">
+            <div class="p-3 md:p-4">
+                <div v-if="!networkData.length" class="text-center py-6 md:py-8 text-gray-500">
                     No network data available.
                 </div>
-                <div v-else class="space-y-4">
+                <div v-else class="space-y-3 md:space-y-4 min-w-[320px]">
                     <NetworkNode 
                         v-for="node in networkData" 
                         :key="node.id"
