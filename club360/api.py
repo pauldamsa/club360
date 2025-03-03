@@ -567,3 +567,40 @@ def get_network_hierarchy(filters=None):
         frappe.log_error(f"Error getting network hierarchy: {str(e)}")
         return []
 
+@frappe.whitelist()
+def promote_to_coach(member_data):
+    try:
+        member = frappe.get_doc('Club Member', member_data.get('name'))
+        
+        # Create new coach
+        new_coach = frappe.new_doc('Coach')
+        new_coach.first_name = member.first_name
+        new_coach.last_name = member.last_name
+        new_coach.full_name = member.full_name
+        new_coach.id_herbalife = f"HC{member.name}"  # Generate coach ID
+        new_coach.level = '1'  # Default level
+        new_coach.role = 'Coach'
+        new_coach.insert(ignore_permissions=True)
+
+        # Update all referrals to point to new coach
+        frappe.db.sql("""
+            UPDATE `tabClub Member`
+            SET coach = %(new_coach_id)s
+            WHERE referral_of = %(member_name)s
+        """, {
+            'new_coach_id': new_coach.id_herbalife,
+            'member_name': member.name
+        })
+
+        # Delete the original member
+        member.delete(ignore_permissions=True)
+        
+        return {
+            "status": "success",
+            "message": "Successfully promoted to coach"
+        }
+        
+    except Exception as e:
+        frappe.log_error(f"Error promoting member to coach: {str(e)}")
+        frappe.throw(f"Error promoting member to coach: {str(e)}")
+

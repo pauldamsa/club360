@@ -14,6 +14,13 @@
                     label="Edit Member" 
                     @click="handleEditMember"
                 />
+                <Button 
+                    variant="solid"
+                    label="Make Coach"
+                    icon="award"
+                    class="bg-yellow-600 hover:bg-yellow-700"
+                    @click="showPromoteDialog = true"
+                />
             </div>
         </div>
 
@@ -255,12 +262,40 @@
             </div>
         </template>
     </Dialog>
+
+    <!-- Add Promote to Coach Dialog -->
+    <Dialog
+        :options="{
+            title: 'Promote to Coach',
+            actions: [
+                {
+                    label: 'Cancel',
+                    variant: 'outline',
+                    onClick: () => showPromoteDialog = false
+                },
+                {
+                    label: 'Promote',
+                    variant: 'solid',
+                    onClick: promoteToCoach,
+                    loading: promoteResource.loading
+                }
+            ]
+        }"
+        v-model="showPromoteDialog"
+    >
+        <template #body-content>
+            <p class="text-gray-600">
+                Are you sure you want to promote {{ clubMemberDoc.full_name }} to coach?
+                Their referrals will become their club members.
+            </p>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
 import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource, createListResource, Dialog } from 'frappe-ui';
 import EditMemberDialog from '@/components/EditMemberDialog.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 
 const isEditing = ref(false);
@@ -451,4 +486,23 @@ const visitsResource = createListResource({
 const recentVisits = computed(() => {
     return visitsResource.list.data || [];
 });
+
+const showPromoteDialog = ref(false);
+const router = useRouter();
+
+const promoteResource = createResource({
+    url: 'club360.api.promote_to_coach',
+    makeParams: () => ({
+        member_data: clubMemberDoc.value
+    }),
+    onSuccess: () => {
+        showPromoteDialog.value = false;
+        // Redirect to coaches page
+        router.push('/coaches');
+    }
+});
+
+function promoteToCoach() {
+    promoteResource.submit();
+}
 </script>
