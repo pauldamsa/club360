@@ -468,35 +468,109 @@ def promote_to_coach(member_data):
     try:
         member = frappe.get_doc('Club Member', member_data.get('name'))
         
+        def get_all_related_members(member_id, processed=None):
+            if processed is None:
+                processed = set()
+            
+            if member_id in processed:
+                return []
+                
+            processed.add(member_id)
+            members = [member_id]
+            
+            # Get direct referrals
+            referrals = frappe.get_all('Club Member',
+                filters={'referral_of': member_id},
+                fields=['name']
+            )
+            
+            # Recursively get all referrals' referrals
+            for referral in referrals:
+                members.extend(get_all_related_members(referral.name, processed))
+                
+            return members
+
+        # Get all related members including nested referrals
+        all_related_members = get_all_related_members(member.name)
+        
+        # Store all referral relationships before deletion
+        referral_relationships = []
+        for member_id in all_related_members:
+            member_doc = frappe.get_doc('Club Member', member_id)
+            referral_relationships.append({
+                'member': member_id,
+                'referral_of': member_doc.referral_of,
+                'coach': member_doc.coach
+            })
+
+        # Store all visits
+        all_visits = []
+        for member_id in all_related_members:
+            member_visits = frappe.get_all('Visit',
+                filters={'club_member': member_id},
+                fields=['club_member', 'date', 'type_event']
+            )
+            all_visits.extend(member_visits)
+
+        # Delete all visits
+        frappe.db.sql("""
+            DELETE FROM `tabVisit`
+            WHERE club_member IN %(members)s
+        """, {'members': all_related_members})
+        frappe.db.commit()
+
+        # Remove all referral connections
+        frappe.db.sql("""
+            UPDATE `tabClub Member` 
+            SET referral_of = NULL 
+            WHERE referral_of IN %(members)s
+        """, {'members': all_related_members})
+        frappe.db.commit()
+
         # Create new coach
         new_coach = frappe.new_doc('Coach')
         new_coach.first_name = member.first_name
         new_coach.last_name = member.last_name
         new_coach.full_name = member.full_name
-        new_coach.id_herbalife = f"HC{member.name}"  # Generate coach ID
-        new_coach.level = '1'  # Default level
-        new_coach.role = 'Coach'
+        new_coach.id_herbalife = member_data['id_herbalife']
+        new_coach.email = member_data['email']
+        new_coach.phone_number = member_data['phone_number']
+        new_coach.sponsor = member_data['coach']
+        new_coach.level = 'SV'
+        new_coach.role = 'Junior Partner'
         new_coach.insert(ignore_permissions=True)
-
-        # Update all referrals to point to new coach
-        frappe.db.sql("""
-            UPDATE `tabClub Member`
-            SET coach = %(new_coach_id)s
-            WHERE referral_of = %(member_name)s
-        """, {
-            'new_coach_id': new_coach.id_herbalife,
-            'member_name': member.name
-        })
 
         # Delete the original member
         member.delete(ignore_permissions=True)
+        frappe.db.commit()
+
+        # Restore referral relationships and update coach
+        for rel in referral_relationships:
+            if rel['member'] != member.name:  # Don't restore the promoted member
+                member_doc = frappe.get_doc('Club Member', rel['member'])
+                member_doc.coach = new_coach.id_herbalife
+                member_doc.save(ignore_permissions=True)
+
+        # Restore all visits
+        for visit in all_visits:
+            new_visit = frappe.new_doc('Visit')
+            new_visit.club_member = visit.club_member
+            new_visit.date = visit.date
+            new_visit.type_event = visit.type_event
+            new_visit.insert(ignore_permissions=True)
+
+        frappe.db.commit()
         
         return {
             "status": "success",
-            "message": "Successfully promoted to coach"
+            "message": "Successfully promoted to coach",
+            "coach": new_coach.id_herbalife,
+            "visits_restored": len(all_visits),
+            "relationships_restored": len(referral_relationships) - 1  # Subtract 1 for the promoted member
         }
         
     except Exception as e:
+        frappe.db.rollback()
         frappe.log_error(f"Error promoting member to coach: {str(e)}")
         frappe.throw(f"Error promoting member to coach: {str(e)}")
 

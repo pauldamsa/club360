@@ -271,29 +271,67 @@
                 {
                     label: 'Cancel',
                     variant: 'outline',
-                    onClick: () => showPromoteDialog = false
+                    onClick: () => {
+                        showPromoteDialog = false;
+                        resetPromoteForm();
+                    }
                 },
                 {
                     label: 'Promote',
                     variant: 'solid',
                     onClick: promoteToCoach,
-                    loading: promoteResource.loading
+                    loading: promoteResource.loading,
+                    disabled: !isPromoteFormValid
                 }
             ]
         }"
         v-model="showPromoteDialog"
+        @click.stop
     >
         <template #body-content>
-            <p class="text-gray-600">
-                Are you sure you want to promote {{ clubMemberDoc.full_name }} to coach?
-                Their referrals will become their club members.
-            </p>
+            <div class="space-y-4" @click.stop>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <p class="text-yellow-700">
+                        You are about to promote {{ clubMemberDoc.full_name }} to coach status. This action will:
+                        <ul class="list-disc ml-4 mt-2">
+                            <li>Convert their referrals to direct club members</li>
+                            <li>Create a new coach profile</li>
+                            <li>Remove their member profile</li>
+                        </ul>
+                        This process may take a few minutes to complete.
+                    </p>
+                </div>
+                <FormControl
+                    type="text"
+                    label="ID Herbalife"
+                    v-model="promoteData.id_herbalife"
+                    required
+                    :error="promoteErrors.id_herbalife"
+                    placeholder="Enter Herbalife ID"
+                />
+                <FormControl
+                    type="email"
+                    label="Email"
+                    v-model="promoteData.email"
+                    required
+                    :error="promoteErrors.email"
+                    placeholder="Enter email address"
+                />
+                <FormControl
+                    type="tel"
+                    label="Phone Number"
+                    v-model="promoteData.phone_number"
+                    required
+                    :error="promoteErrors.phone_number"
+                    placeholder="Enter phone number"
+                />
+            </div>
         </template>
     </Dialog>
 </template>
 
 <script setup>
-import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource, createListResource, Dialog } from 'frappe-ui';
+import { createDocumentResource, Card, Badge, Avatar, Button, Input, Select, createResource, createListResource, Dialog, FormControl } from 'frappe-ui';
 import EditMemberDialog from '@/components/EditMemberDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
@@ -490,19 +528,95 @@ const recentVisits = computed(() => {
 const showPromoteDialog = ref(false);
 const router = useRouter();
 
+// const promoteResource = createResource({
+//     url: 'club360.api.promote_to_coach',
+//     makeParams: () => ({
+//         member_data: clubMemberDoc.value
+//     }),
+//     onSuccess: () => {
+//         showPromoteDialog.value = false;
+//         // Redirect to coaches page
+//         router.push('/coaches');
+//     }
+// });
+
 const promoteResource = createResource({
     url: 'club360.api.promote_to_coach',
     makeParams: () => ({
-        member_data: clubMemberDoc.value
+        member_data: {
+            ...clubMemberDoc.value,
+            ...promoteData.value
+        }
     }),
     onSuccess: () => {
         showPromoteDialog.value = false;
-        // Redirect to coaches page
         router.push('/coaches');
     }
 });
 
+// function promoteToCoach() {
+//     promoteResource.submit();
+// }
+
+const promoteData = ref({
+    id_herbalife: '',
+    email: '',
+    phone_number: ''
+});
+
+const promoteErrors = ref({
+    id_herbalife: '',
+    email: '',
+    phone_number: ''
+});
+
+const isPromoteFormValid = computed(() => {
+    return promoteData.value.id_herbalife && 
+           promoteData.value.email && 
+           promoteData.value.phone_number;
+});
+
 function promoteToCoach() {
+    // Reset errors
+    promoteErrors.value = {
+        id_herbalife: '',
+        email: '',
+        phone_number: ''
+    };
+
+    // Validate fields
+    let isValid = true;
+    
+    if (!promoteData.value.id_herbalife) {
+        promoteErrors.value.id_herbalife = 'ID Herbalife is required';
+        isValid = false;
+    }
+    
+    if (!promoteData.value.email) {
+        promoteErrors.value.email = 'Email is required';
+        isValid = false;
+    }
+    
+    if (!promoteData.value.phone_number) {
+        promoteErrors.value.phone_number = 'Phone number is required';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
     promoteResource.submit();
+}
+
+function resetPromoteForm() {
+    promoteData.value = {
+        id_herbalife: '',
+        email: '',
+        phone_number: ''
+    };
+    promoteErrors.value = {
+        id_herbalife: '',
+        email: '',
+        phone_number: ''
+    };
 }
 </script>
