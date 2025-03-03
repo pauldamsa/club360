@@ -153,7 +153,6 @@ const coachOptions = computed(() => {
 const flavours = [
     'Vanilla',
     'Chocolate',
-    'Salted Caramel',
     'Banana',
     'Strawberries',
     'Berries',

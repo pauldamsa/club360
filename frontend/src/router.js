@@ -54,9 +54,9 @@ const routes = [
     component: () => import('@/pages/StatisticsPage.vue'),
   },
   {
-    name:'ReportsPage',
-    path:'/statistics/reports',
-    component: () => import('@/pages/ReportsPage.vue'),
+    name:'NetworkPage',
+    path:'/statistics/network',
+    component: () => import('@/pages/NetworkPage.vue'),
   },
   {
     name:'ProfileClubPage',
