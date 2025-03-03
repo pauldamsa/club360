@@ -23,7 +23,7 @@
                         :class="getStatusClass"
                     />
                     <Badge 
-                        v-if="node.children?.length"
+                        v-if="node.direct_count > 0"
                         :label="`${node.direct_count} direct`"
                         class="bg-blue-100 text-blue-800"
                     />
@@ -33,7 +33,7 @@
                         class="bg-purple-100 text-purple-800"
                     />
                 </div>
-                <span v-if="!node.type.includes('coach')" class="text-sm text-gray-500">
+                <span v-if="node.date" class="text-sm text-gray-500">
                     {{ formatDate(node.date) }}
                 </span>
             </div>
@@ -44,14 +44,16 @@
             />
         </div>
 
-        <div v-if="isExpanded && node.children?.length" class="pl-8 space-y-2 pb-2">
+        <div 
+            v-if="isExpanded && node.children?.length" 
+            class="pl-8 space-y-2 pb-2 border-l-2"
+        >
             <NetworkNode 
                 v-for="child in node.children"
                 :key="child.id"
                 :node="child"
                 :expanded-nodes="expandedNodes"
                 @toggle="$emit('toggle', $event)"
-                class="border-l-2"
             />
         </div>
     </div>
@@ -79,20 +81,12 @@ const isExpanded = computed(() => props.expandedNodes.has(props.node.id));
 
 const getNodeIcon = computed(() => {
     if (props.node.type === 'coach') return 'award';
-    if (props.node.type === 'direct') return 'user';
-    return 'user-plus';
+    return 'user';
 });
 
 const getNodeColorClass = computed(() => {
     if (props.node.type === 'coach') return 'text-yellow-500';
-    if (props.node.type === 'direct') return 'text-blue-500';
-    return {
-        'text-green-500': props.node.type.includes('level_1'),
-        'text-purple-500': props.node.type.includes('level_2'),
-        'text-orange-500': props.node.type.includes('level_3'),
-        'text-red-500': props.node.type.includes('level_4'),
-        'text-pink-500': props.node.type.includes('level_5')
-    };
+    return 'text-blue-500';
 });
 
 const getStatusClass = computed(() => ({

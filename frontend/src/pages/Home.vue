@@ -182,9 +182,6 @@ function formatTime(date) {
 function handleMemberAdded() {
     // Reload members to update the mapping
     membersResource.reload();
-    
-    // Show success message (optional)
-    console.log('Member added successfully');
 }
 
 // Add coaches resource for quick updates
@@ -197,9 +194,6 @@ const coachesResource = createListResource({
 function handleCoachAdded() {
     // Reload coaches to update any lists/mappings
     coachesResource.reload();
-    
-    // Show success message (optional)
-    console.log('Coach added successfully');
 }
 
 // Update visits count resource to only count today's visits
@@ -233,7 +227,7 @@ const totalVisitsResource = createListResource({
     pageLength: 99999, // Set a large number to get all records
     auto: true
 });
-console.log(totalVisitsResource);
+
 const totalVisits = computed(() => {
     return totalVisitsResource.list.data?.length || 0;
 });

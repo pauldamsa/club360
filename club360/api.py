@@ -464,110 +464,6 @@ def get_dashboard_statistics():
         return {}
 
 @frappe.whitelist()
-def get_network_hierarchy(filters=None):
-    try:
-        current_user = frappe.session.user
-        coach_filter = filters.get('coach') if filters and filters.get('coach') else None
-        date_filter = filters.get('date') if filters and filters.get('date') else None
-
-        def get_member_tree(member_id, level=1, max_level=5):
-            if level >= max_level:
-                return []
-
-            date_condition = f"AND creation >= '{date_filter}'" if date_filter else ""
-            members = frappe.db.sql(f"""
-                SELECT 
-                    name, full_name, creation, status,
-                    (SELECT COUNT(*) FROM `tabClub Member` WHERE referral_of = cm.name) as direct_children,
-                    (SELECT COUNT(*) FROM `tabClub Member` r1
-                     JOIN `tabClub Member` r2 ON r2.referral_of = r1.name
-                     WHERE r1.referral_of = cm.name) as indirect_children
-                FROM `tabClub Member` cm
-                WHERE owner = '{current_user}'
-                AND referral_of = '{member_id}'
-                {date_condition}
-            """, as_dict=True)
-
-            result = []
-            for member in members:
-                children = get_member_tree(member.name, level + 1, max_level)
-                member_data = {
-                    'id': member.name,
-                    'name': member.full_name,
-                    'type': f'level_{level}',
-                    'date': member.creation,
-                    'status': member.status,
-                    'direct_count': member.direct_children,
-                    'total_count': member.direct_children + member.indirect_children,
-                    'children': children
-                }
-                result.append(member_data)
-            return result
-
-        # Get coaches hierarchy
-        coach_filters = {'owner': current_user}
-        if coach_filter:
-            coach_filters['id_herbalife'] = coach_filter
-
-        coaches = frappe.get_all('Coach',
-            filters=coach_filters,
-            fields=['id_herbalife', 'full_name', 'level', 'role']
-        )
-
-        hierarchy = []
-        for coach in coaches:
-            # Get direct members
-            date_condition = f"AND creation >= '{date_filter}'" if date_filter else ""
-            members_query = f"""
-                SELECT 
-                    name, full_name, creation, status,
-                    (SELECT COUNT(*) FROM `tabClub Member` WHERE referral_of = cm.name) as direct_children,
-                    (SELECT COUNT(*) FROM `tabClub Member` r1
-                     JOIN `tabClub Member` r2 ON r2.referral_of = r1.name
-                     WHERE r1.referral_of = cm.name) as indirect_children
-                FROM `tabClub Member` cm
-                WHERE owner = '{current_user}'
-                AND coach = '{coach.id_herbalife}'
-                {date_condition}
-            """
-            members = frappe.db.sql(members_query, as_dict=True)
-
-            direct_members = []
-            total_network = 0
-            for member in members:
-                children = get_member_tree(member.name)
-                member_data = {
-                    'id': member.name,
-                    'name': member.full_name,
-                    'type': 'direct',
-                    'date': member.creation,
-                    'status': member.status,
-                    'direct_count': member.direct_children,
-                    'total_count': member.direct_children + member.indirect_children,
-                    'children': children
-                }
-                direct_members.append(member_data)
-                total_network += 1 + member.direct_children + member.indirect_children
-
-            coach_data = {
-                'id': coach.id_herbalife,
-                'name': coach.full_name,
-                'type': 'coach',
-                'level': coach.level,
-                'role': coach.role,
-                'direct_count': len(members),
-                'total_count': total_network,
-                'children': direct_members
-            }
-            hierarchy.append(coach_data)
-
-        return hierarchy
-
-    except Exception as e:
-        frappe.log_error(f"Error getting network hierarchy: {str(e)}")
-        return []
-
-@frappe.whitelist()
 def promote_to_coach(member_data):
     try:
         member = frappe.get_doc('Club Member', member_data.get('name'))
@@ -603,4 +499,91 @@ def promote_to_coach(member_data):
     except Exception as e:
         frappe.log_error(f"Error promoting member to coach: {str(e)}")
         frappe.throw(f"Error promoting member to coach: {str(e)}")
+
+@frappe.whitelist()
+def get_network_hierarchy():
+    try:
+        current_user = frappe.session.user
+        
+        def get_member_tree(member_id, processed_members=None):
+            if processed_members is None:
+                processed_members = set()
+                
+            if member_id in processed_members:
+                return None
+                
+            processed_members.add(member_id)
+            
+            member = frappe.get_doc('Club Member', member_id)
+            referrals = frappe.get_all('Club Member',
+                filters={
+                    'owner': current_user,
+                    'referral_of': member_id
+                },
+                fields=['name', 'full_name', 'creation', 'status', 'referrals']
+            )
+            
+            children = []
+            for referral in referrals:
+                child = get_member_tree(referral.name, processed_members)
+                if child:
+                    children.append(child)
+            
+            return {
+                'id': member.name,
+                'name': member.full_name,
+                'type': 'member',
+                'date': member.creation,
+                'status': member.status,
+                'direct_count': len(referrals),
+                'total_count': len(referrals) + sum(c['total_count'] for c in children),
+                'children': children
+            }
+
+        # Get coaches with their direct members
+        coaches = frappe.get_all('Coach',
+            filters={'owner': current_user},
+            fields=['id_herbalife', 'full_name', 'level', 'role']
+        )
+
+        network = []
+        processed_members = set()
+        
+        for coach in coaches:
+            # Get direct members for this coach
+            members = frappe.get_all('Club Member',
+                filters={
+                    'owner': current_user,
+                    'coach': coach.id_herbalife,
+                    'referral_of': ''  # Only get direct members
+                },
+                fields=['name', 'full_name', 'creation', 'status']
+            )
+
+            children = []
+            total_network = 0
+            
+            for member in members:
+                member_tree = get_member_tree(member.name, processed_members)
+                if member_tree:
+                    children.append(member_tree)
+                    total_network += 1 + member_tree['total_count']
+
+            coach_data = {
+                'id': coach.id_herbalife,
+                'name': coach.full_name,
+                'type': 'coach',
+                'level': coach.level,
+                'role': coach.role,
+                'direct_count': len(members),
+                'total_count': total_network,
+                'children': children
+            }
+            network.append(coach_data)
+
+        return network
+
+    except Exception as e:
+        frappe.log_error(f"Error getting network hierarchy: {str(e)}")
+        return []
 
