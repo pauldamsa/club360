@@ -1,76 +1,165 @@
 <template>
-    <div class="flex flex-col p-6 space-y-6">
+    <div class="flex flex-col p-4 md:p-6 space-y-4 md:space-y-6">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div class="flex items-center space-x-2">
-                <h1 class="text-2xl font-bold text-gray-900">Visits</h1>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900">Visits</h1>
                 <span class="px-2 py-1 text-sm font-medium bg-red-100 text-gray-600 rounded-md">
                     {{ visitsList.length }}
                 </span>
             </div>
-            <div class="flex space-x-2">
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Button 
                     variant="outline" 
                     label="Export PDF"
                     icon="file-text"
                     @click="exportToPDF"
+                    class="w-full sm:w-auto"
                 />
                 <Button 
                     variant="solid" 
                     label="Add Visit"
                     @click="handleAddVisit"
+                    class="w-full sm:w-auto"
                 />
             </div>
         </div>
 
-        <!-- Add Filters Section -->
+        <!-- Filters Card -->
         <Card class="mb-4">
             <div class="p-4 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Member Filter -->
-                    <div>
-                        <FormControl
-                            type="autocomplete"
-                            label="Filter by Member"
-                            v-model="filters.member"
-                            :options="clubMemberOptions"
-                            placeholder="Select member"
-                        />
-                    </div>
-                    <!-- Date Filter -->
-                    <div class="flex space-x-4">
+                <div class="space-y-4">
+                    <FormControl
+                        type="autocomplete"
+                        label="Filter by Member"
+                        v-model="filters.member"
+                        :options="clubMemberOptions"
+                        placeholder="Select member"
+                        class="w-full"
+                    />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FormControl
                             type="date"
                             label="From Date"
                             v-model="filters.fromDate"
-                            class="flex-1"
+                            class="w-full"
                         />
                         <FormControl
                             type="date"
                             label="To Date"
                             v-model="filters.toDate"
-                            class="flex-1"
+                            class="w-full"
                         />
                     </div>
                 </div>
-                <div class="flex justify-end space-x-2">
+                <div class="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button 
                         variant="outline" 
                         label="Reset" 
                         @click="resetFilters"
+                        class="w-full sm:w-auto"
                     />
                     <Button 
                         variant="solid" 
                         label="Apply Filters"
                         @click="applyFilters"
+                        class="w-full sm:w-auto"
                     />
                 </div>
             </div>
         </Card>
 
-        <!-- Visits Table -->
+        <!-- Visits List -->
         <Card>
-            <div class="overflow-x-auto">
+            <!-- Mobile View -->
+            <div class="block sm:hidden">
+                <div class="divide-y divide-gray-200">
+                    <div v-for="visit in sortedVisits" 
+                         :key="visit.name" 
+                         class="p-4 space-y-3"
+                    >
+                        <!-- Display View -->
+                        <div v-if="editingVisit !== visit.name">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <Avatar :label="visit.memberName" size="sm" />
+                                    <div>
+                                        <div class="font-medium">{{ visit.memberName }}</div>
+                                        <div class="text-sm text-gray-500">{{ formatDate(visit.date) }}</div>
+                                    </div>
+                                </div>
+                                <Badge 
+                                    :label="visit.type_event" 
+                                    :class="{
+                                        'bg-blue-100 text-blue-800': visit.type_event === 'Sport',
+                                        'bg-green-100 text-green-800': visit.type_event === 'Breakfast'
+                                    }"
+                                />
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <Button
+                                    variant="outline"
+                                    icon="edit-2"
+                                    size="sm"
+                                    @click="handleEditVisit(visit)"
+                                />
+                                <Button
+                                    variant="danger"
+                                    icon="trash-2"
+                                    size="sm"
+                                    @click="handleDeleteVisit(visit)"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Edit View -->
+                        <div v-else class="space-y-3">
+                            <FormControl
+                                type="autocomplete"
+                                label="Member"
+                                v-model="editableVisit.club_member"
+                                :options="clubMemberOptions"
+                                class="w-full"
+                            />
+                            <FormControl
+                                type="date"
+                                label="Date"
+                                v-model="editableVisit.date"
+                                class="w-full"
+                            />
+                            <FormControl
+                                type="select"
+                                label="Type"
+                                v-model="editableVisit.type_event"
+                                :options="typeOptions"
+                                class="w-full"
+                            />
+                            <div class="flex justify-end space-x-2 pt-2">
+                                <Button
+                                    variant="solid"
+                                    label="Save"
+                                    icon="check"
+                                    size="sm"
+                                    @click="handleSaveVisit"
+                                    :loading="editVisitResource.loading"
+                                    class="w-1/2"
+                                />
+                                <Button
+                                    variant="outline"
+                                    label="Cancel"
+                                    icon="x"
+                                    size="sm"
+                                    @click="handleCancelEdit"
+                                    class="w-1/2"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="hidden sm:block overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -156,31 +245,30 @@
                         </tr>
                     </tbody>
                 </table>
-                <!-- Add pagination controls -->
-                <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
-                    <div class="flex flex-1 justify-between items-center">
-                        <div class="text-sm text-gray-700">
-                            <!-- Showing page {{ visitsResource.currentPage }} of {{ visitsResource.totalPages }} -->
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <Button 
-                                variant="outline" 
-                                size="sm"
-                                :disabled="!visitsResource?.hasPreviousPage"
-                                @click="visitsResource.previous()"
-                            >
-                                Previous
-                            </Button>
+            </div>
 
-                            <Button 
-                                variant="outline" 
-                                size="sm"
-                                :disabled="!visitsResource?.hasNextPage"
-                                @click="visitsResource.next()"
-                            >
-                                Next
-                            </Button>
-                        </div>
+            <!-- Pagination -->
+            <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
+                <div class="flex flex-1 justify-between items-center">
+                    <div class="flex space-x-2">
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            :disabled="!visitsResource?.hasPreviousPage"
+                            @click="visitsResource.previous()"
+                            class="w-24"
+                        >
+                            Previous
+                        </Button>
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            :disabled="!visitsResource?.hasNextPage"
+                            @click="visitsResource.next()"
+                            class="w-24"
+                        >
+                            Next
+                        </Button>
                     </div>
                 </div>
             </div>

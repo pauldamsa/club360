@@ -1,25 +1,25 @@
 <template>
-    <div class="p-6 space-y-6">
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6">
         <!-- Total Stock Overview -->
         <Card class="bg-white">
             <div class="p-4">
                 <h2 class="text-lg font-medium mb-4">Total Stock Overview</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="p-4 border rounded-lg">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                    <div class="p-3 md:p-4 border rounded-lg">
                         <div class="text-sm text-gray-500">Formula 1</div>
-                        <div class="text-2xl font-semibold">{{ totalStock.shake || 0 }}</div>
+                        <div class="text-xl md:text-2xl font-semibold">{{ totalStock.shake || 0 }}</div>
                     </div>
-                    <div class="p-4 border rounded-lg">
+                    <div class="p-3 md:p-4 border rounded-lg">
                         <div class="text-sm text-gray-500">Herbal Tea</div>
-                        <div class="text-2xl font-semibold">{{ totalStock.tea || 0 }}</div>
+                        <div class="text-xl md:text-2xl font-semibold">{{ totalStock.tea || 0 }}</div>
                     </div>
-                    <div class="p-4 border rounded-lg">
+                    <div class="p-3 md:p-4 border rounded-lg">
                         <div class="text-sm text-gray-500">Aloe</div>
-                        <div class="text-2xl font-semibold">{{ totalStock.aloe || 0 }}</div>
+                        <div class="text-xl md:text-2xl font-semibold">{{ totalStock.aloe || 0 }}</div>
                     </div>
-                    <div class="p-4 border rounded-lg">
+                    <div class="p-3 md:p-4 border rounded-lg">
                         <div class="text-sm text-gray-500">PDM</div>
-                        <div class="text-2xl font-semibold">{{ totalStock.pdm || 0 }}</div>
+                        <div class="text-xl md:text-2xl font-semibold">{{ totalStock.pdm || 0 }}</div>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,41 @@
         <Card>
             <div class="p-4">
                 <h2 class="text-lg font-medium mb-4">Stock Per Coach</h2>
-                <div class="overflow-x-auto">
+                
+                <!-- Mobile View -->
+                <div class="block sm:hidden">
+                    <div class="space-y-4">
+                        <div v-for="coach in coachStock" 
+                             :key="coach.id_herbalife" 
+                             class="border rounded-lg p-4"
+                        >
+                            <div class="mb-3">
+                                <div class="font-medium text-gray-900">{{ coach.full_name }}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Formula 1:</span>
+                                    <span class="ml-2 font-medium">{{ coach.stock[0]?.servings || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Tea:</span>
+                                    <span class="ml-2 font-medium">{{ coach.stock[2]?.servings || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Aloe:</span>
+                                    <span class="ml-2 font-medium">{{ coach.stock[1]?.servings || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">PDM:</span>
+                                    <span class="ml-2 font-medium">{{ coach.stock[3]?.servings || 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop View -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
@@ -58,7 +92,43 @@
         <Card>
             <div class="p-4">
                 <h2 class="text-lg font-medium mb-4">Stock History</h2>
-                <div class="overflow-x-auto">
+                
+                <!-- Mobile View -->
+                <div class="block sm:hidden">
+                    <div class="space-y-4">
+                        <div v-for="entry in stockHistory" 
+                             :key="entry.name" 
+                             class="border rounded-lg p-4"
+                        >
+                            <div class="mb-3">
+                                <div class="font-medium text-gray-900">{{ entry.coach_name }}</div>
+                                <div class="text-sm text-gray-500">{{ formatDate(entry.data) }}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Formula 1:</span>
+                                    <span class="ml-2 font-medium">{{ entry.shake || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Tea:</span>
+                                    <span class="ml-2 font-medium">{{ entry.tea || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">Aloe:</span>
+                                    <span class="ml-2 font-medium">{{ entry.aloe || 0 }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-gray-500">PDM:</span>
+                                    <span class="ml-2 font-medium">{{ entry.pdm || 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-500">{{ entry.type_event }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop View -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
@@ -83,30 +153,30 @@
                             </tr>
                         </tbody>
                     </table>
-                    <!-- Add pagination controls -->
-                    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 mt-4">
-                        <div class="flex flex-1 justify-between items-center">
-                            <div class="text-sm text-gray-700">
-                                <!-- Showing {{ (stockHistoryResource.currentPage - 1) * 5 + 1 }} to {{ Math.min(stockHistoryResource.currentPage * 5, stockHistory.length) }} of {{ stockHistory.length }} entries -->
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    :disabled="!stockHistoryResource.hasPreviousPage"
-                                    @click="stockHistoryResource.previous()"
-                                >
-                                    Previous
-                                </Button>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    :disabled="!stockHistoryResource.hasNextPage"
-                                    @click="stockHistoryResource.next()"
-                                >
-                                    Next
-                                </Button>
-                            </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 mt-4">
+                    <div class="flex flex-1 justify-center sm:justify-between items-center">
+                        <div class="flex space-x-2">
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                :disabled="!stockHistoryResource.hasPreviousPage"
+                                @click="stockHistoryResource.previous()"
+                                class="w-24"
+                            >
+                                Previous
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                :disabled="!stockHistoryResource.hasNextPage"
+                                @click="stockHistoryResource.next()"
+                                class="w-24"
+                            >
+                                Next
+                            </Button>
                         </div>
                     </div>
                 </div>

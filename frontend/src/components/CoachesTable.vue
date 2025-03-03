@@ -2,8 +2,8 @@
     <div v-if="coachesList" class="bg-white rounded-lg shadow">
         <!-- Search bar -->
         <div class="p-4 border-b border-gray-200">
-            <div class="flex items-center space-x-2">
-                <div class="w-full max-w-md">
+            <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <div class="w-full sm:max-w-md">
                     <Input
                         type="text"
                         placeholder="Search coaches by name..."
@@ -19,12 +19,46 @@
                     icon="search"
                     :loading="coachesResource.loading"
                     @click="performSearch"
+                    class="w-full sm:w-auto"
                 />
             </div>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
+        <!-- Mobile View -->
+        <div class="block sm:hidden">
+            <div class="divide-y divide-gray-200">
+                <div v-for="coach in coachesList" 
+                     :key="coach.name" 
+                     class="p-4 hover:bg-gray-50"
+                     @click="navigateToDetails(coach)"
+                >
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-3">
+                            <Avatar :label="coach.full_name" size="md" />
+                            <div>
+                                <div class="font-medium">{{ coach.full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ getSponsorName(coach.sponsor) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <div class="space-x-2">
+                            <Badge :label="coach.role" />
+                            <Badge :label="coach.level" />
+                        </div>
+                        <Button
+                            variant="danger"
+                            icon="trash-2"
+                            size="sm"
+                            @click.stop="deleteCoach(coach)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="hidden sm:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
