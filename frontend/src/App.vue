@@ -13,8 +13,22 @@
 </template>
 
 <script setup>
+import { watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { titleMap } from './utils/titleMap';
 import Navbar from '@/components/Navbar.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Sidebar2 from '@/components/Sidebar2.vue';
 import { session } from './data/session.js';
+
+const route = useRoute();
+
+// Watch for route changes and update document title
+watch(
+    () => route.name,
+    (newRouteName) => {
+        document.title = titleMap[newRouteName] || titleMap.default;
+    },
+    { immediate: true }
+);
 </script>
