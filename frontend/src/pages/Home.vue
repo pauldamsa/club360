@@ -1,111 +1,122 @@
 <template>
-    <div class="p-6">
+    <div class="p-4 md:p-6">
         <!-- Welcome Section -->
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ session.user }}!</h1>
-            <p class="mt-2 text-gray-600">Here's what's happening in your club today</p>
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900">Welcome back, {{ session.user }}!</h1>
+            <p class="mt-2 text-sm md:text-base text-gray-600">Here's what's happening in your club today</p>
         </div>
 
         <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
             <Card @click="addVisitDialog.openDialog()" class="cursor-pointer hover:shadow-lg transition-shadow">
-                <div class="p-4 flex items-center space-x-4">
-                    <div class="p-3 bg-green-100 rounded-lg">
-                        <CheckSquare class="w-6 h-6 text-green-600" />
+                <div class="p-3 md:p-4 flex items-center space-x-3 md:space-x-4">
+                    <div class="p-2 md:p-3 bg-green-100 rounded-lg">
+                        <CheckSquare class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                     </div>
                     <div>
-                        <h3 class="font-medium">Add Visits</h3>
-                        <p class="text-sm text-gray-500">Record member visits</p>
+                        <h3 class="font-medium text-sm md:text-base">Add Visits</h3>
+                        <p class="text-xs md:text-sm text-gray-500">Record member visits</p>
                     </div>
                 </div>
             </Card>
             
             <Card @click="addMemberDialog.openDialog()" class="cursor-pointer hover:shadow-lg transition-shadow">
-                <div class="p-4 flex items-center space-x-4">
-                    <div class="p-3 bg-blue-100 rounded-lg">
-                        <UserPlus class="w-6 h-6 text-blue-600" />
+                <div class="p-3 md:p-4 flex items-center space-x-3 md:space-x-4">
+                    <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
+                        <UserPlus class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
                     </div>
                     <div>
-                        <h3 class="font-medium">Add Member</h3>
-                        <p class="text-sm text-gray-500">Register a new club member</p>
+                        <h3 class="font-medium text-sm md:text-base">Add Member</h3>
+                        <p class="text-xs md:text-sm text-gray-500">Register a new club member</p>
                     </div>
                 </div>
             </Card>
 
             <Card @click="addCoachDialog.openDialog()" class="cursor-pointer hover:shadow-lg transition-shadow">
-                <div class="p-4 flex items-center space-x-4">
-                    <div class="p-3 bg-purple-100 rounded-lg">
-                        <Users class="w-6 h-6 text-purple-600" />
+                <div class="p-3 md:p-4 flex items-center space-x-3 md:space-x-4">
+                    <div class="p-2 md:p-3 bg-purple-100 rounded-lg">
+                        <Users class="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
                     </div>
                     <div>
-                        <h3 class="font-medium">Add Coach</h3>
-                        <p class="text-sm text-gray-500">Register a new coach</p>
+                        <h3 class="font-medium text-sm md:text-base">Add Coach</h3>
+                        <p class="text-xs md:text-sm text-gray-500">Register a new coach</p>
                     </div>
                 </div>
             </Card>
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
             <Card>
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-gray-500 text-sm">Total Visits</h3>
-                        <Activity class="w-5 h-5 text-blue-500" />
+                        <h3 class="text-xs md:text-sm text-gray-500">Total Visits</h3>
+                        <Activity class="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
                     </div>
-                    <p class="text-2xl font-semibold">{{ totalVisits }}</p>
-                    <p class="text-sm text-gray-500 mt-2">average visits in last 3 months: {{ averageVisits }}</p>
+                    <p class="text-xl md:text-2xl font-semibold">{{ totalVisits }}</p>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
+                        average visits in last 3 months: {{ averageVisits }}
+                    </p>
                 </div>
             </Card>
 
             <Card>
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-gray-500 text-sm">Active Members</h3>
-                        <Users class="w-5 h-5 text-green-500" />
+                        <h3 class="text-xs md:text-sm text-gray-500">Active Members</h3>
+                        <Users class="w-4 h-4 md:w-5 md:h-5 text-green-500" />
                     </div>
-                    <p class="text-2xl font-semibold">{{ activeMembersCount }}</p>
-                    <p class="text-sm text-gray-500 mt-2">{{ newMembersCount }} new this month</p>
+                    <p class="text-xl md:text-2xl font-semibold">{{ activeMembersCount }}</p>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">{{ newMembersCount }} new this month</p>
                 </div>
             </Card>
 
             <Card>
-                <div class="p-4">
+                <div class="p-3 md:p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-gray-500 text-sm">Total Referrals</h3>
-                        <Users class="w-5 h-5 text-purple-500" />
+                        <h3 class="text-xs md:text-sm text-gray-500">Total Referrals</h3>
+                        <Users class="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
                     </div>
-                    <p class="text-2xl font-semibold">{{ referralsCount }}</p>
-                    <p class="text-sm text-gray-500 mt-2">{{ newReferralsCount }} new this month</p>
+                    <p class="text-xl md:text-2xl font-semibold">{{ referralsCount }}</p>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">{{ newReferralsCount }} new this month</p>
                 </div>
             </Card>
         </div>
 
         <!-- Today's Visits -->
         <Card>
-            <div class="p-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-medium">Today's Visits</h2>
-                    <span class="px-2 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-md">
+            <div class="p-3 md:p-4">
+                <div class="flex items-center justify-between mb-3 md:mb-4">
+                    <h2 class="text-base md:text-lg font-medium">Today's Visits</h2>
+                    <span class="px-2 py-1 text-xs md:text-sm font-medium bg-blue-100 text-blue-800 rounded-md">
                         Total: {{ allVisitsCount }}
                     </span>
                 </div>
-                <div class="space-y-4">
-                    <div v-if="todayVisits.length === 0" class="text-center text-gray-500 py-4">
+                <div class="space-y-3 md:space-y-4">
+                    <div v-if="todayVisits.length === 0" class="text-center text-gray-500 py-4 text-sm md:text-base">
                         No visits recorded today
                     </div>
                     <div v-else class="divide-y divide-gray-100">
-                        <div v-for="visit in formattedVisits" :key="visit.name" class="flex items-center justify-between py-3">
-                            <div class="flex items-center space-x-3">
-                                <Avatar :label="memberNames[visit.club_member] || visit.club_member" size="sm" />
+                        <div v-for="visit in formattedVisits" 
+                             :key="visit.name" 
+                             class="flex items-center justify-between py-2 md:py-3"
+                        >
+                            <div class="flex items-center space-x-2 md:space-x-3">
+                                <Avatar :label="memberNames[visit.club_member] || visit.club_member" 
+                                      size="sm" 
+                                />
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">
+                                    <p class="text-xs md:text-sm font-medium text-gray-900">
                                         {{ memberNames[visit.club_member] || visit.club_member }}
                                     </p>
                                     <p class="text-xs text-gray-500">{{ formatTime(visit.date) }}</p>
                                 </div>
                             </div>
-                            <Badge :label="visit.type_event" variant="solid" class="bg-green-100 text-green-800" />
+                            <Badge 
+                                :label="visit.type_event" 
+                                variant="solid" 
+                                class="text-xs md:text-sm bg-green-100 text-green-800" 
+                            />
                         </div>
                     </div>
                 </div>

@@ -1,35 +1,36 @@
 <template>
-    <div class="p-6">
+    <div class="p-4 md:p-6">
         <!-- Header section -->
-        <div class="mb-8 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <Avatar :label="clubMemberDoc.full_name" size="xl" />
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ clubMemberDoc.full_name }}</h1>
+        <div class="mb-4 md:mb-8">
+            <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                <div class="flex items-center space-x-4">
+                    <Avatar :label="clubMemberDoc.full_name" size="lg" />
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-900">{{ clubMemberDoc.full_name }}</h1>
                 </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <Button 
-                    variant="solid" 
-                    label="Edit Member" 
-                    @click="handleEditMember"
-                />
-                <Button 
-                    variant="solid"
-                    label="Make Coach"
-                    icon="award"
-                    class="bg-yellow-600 hover:bg-yellow-700"
-                    @click="showPromoteDialog = true"
-                />
+                <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
+                    <Button 
+                        variant="solid" 
+                        label="Edit Member" 
+                        class="w-full sm:w-auto"
+                        @click="handleEditMember"
+                    />
+                    <Button 
+                        variant="solid"
+                        label="Make Coach"
+                        icon="award"
+                        class="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700"
+                        @click="showPromoteDialog = true"
+                    />
+                </div>
             </div>
         </div>
 
         <!-- Main content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <!-- Member Details Card -->
             <Card class="lg:col-span-1">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-3 text-sm md:text-base">
                         <div class="text-gray-500">First Name</div>
                         <div>{{ clubMemberDoc.first_name }}</div>
                         
@@ -62,26 +63,85 @@
 
             <!-- Memberships Card -->
             <Card class="lg:col-span-2">
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center border-b border-gray-200 pb-4">
+                <div class="p-4 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                         <h2 class="text-lg font-medium">Memberships</h2>
                         <div class="flex space-x-2">
                             <Button 
                                 variant="outline" 
                                 label="Edit"
                                 icon="edit-2"
+                                class="flex-1 sm:flex-none"
                                 @click="isEditing = !isEditing"
                             />
                             <Button 
                                 variant="solid" 
                                 label="Add New"
                                 icon="plus"
+                                class="flex-1 sm:flex-none"
                                 @click="handleAddMembership"
                             />
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <!-- Mobile Memberships View -->
+                    <div class="block sm:hidden">
+                        <div class="space-y-4">
+                            <div v-for="(membership, index) in editableMemberships" 
+                                :key="index"
+                                class="border rounded-lg p-4"
+                            >
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">Type</span>
+                                        <div v-if="isEditing" class="w-1/2">
+                                            <Select v-model="editableMemberships[index].type" :options="membershipTypes" />
+                                        </div>
+                                        <span v-else>{{ membership.type }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">Start Date</span>
+                                        <div v-if="isEditing" class="w-1/2">
+                                            <Input type="date" v-model="editableMemberships[index].start_date" />
+                                        </div>
+                                        <span v-else>{{ formatDate(membership.start_date) }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">End Date</span>
+                                        <div v-if="isEditing" class="w-1/2">
+                                            <Input type="date" v-model="editableMemberships[index].end_date" />
+                                        </div>
+                                        <span v-else>{{ formatDate(membership.end_date) }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">Visits</span>
+                                        <div v-if="isEditing" class="w-1/2">
+                                            <Input type="number" v-model="editableMemberships[index].remaining_visits" />
+                                        </div>
+                                        <Badge v-else 
+                                            :label="membership.remaining_visits" 
+                                            :class="{
+                                                'bg-green-100 text-green-800': membership.remaining_visits > 5,
+                                                'bg-yellow-100 text-yellow-800': membership.remaining_visits <= 5 && membership.remaining_visits > 0,
+                                                'bg-red-100 text-red-800': membership.remaining_visits === 0
+                                            }"
+                                        />
+                                    </div>
+                                    <div class="flex justify-end pt-2">
+                                        <Button
+                                            variant="danger"
+                                            icon="trash-2"
+                                            size="sm"
+                                            @click="deleteMembership(index)"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Memberships View -->
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
@@ -124,7 +184,6 @@
                                         </div>
                                         <Badge v-else 
                                             :label="membership.remaining_visits" 
-                                            variant="solid" 
                                             :class="{
                                                 'bg-green-100 text-green-800': membership.remaining_visits > 5,
                                                 'bg-yellow-100 text-yellow-800': membership.remaining_visits <= 5 && membership.remaining_visits > 0,
@@ -162,70 +221,50 @@
         </div>
 
         <!-- Referrals and Recent Visits Section -->
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Referrals Section -->
+        <div class="mt-4 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <!-- Mobile Referrals View -->
             <Card>
-                <div class="space-y-4">
-                    <h2 class="text-lg font-medium mb-4">Member Referrals</h2>
+                <div class="p-4 space-y-4">
+                    <h2 class="text-lg font-medium">Member Referrals</h2>
                     <div v-if="referralsList.length === 0" class="text-gray-500 text-center py-4">
                         No referrals yet
                     </div>
-                    <div v-else class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr v-for="referral in referralsList" :key="referral.name" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <Avatar :label="referral.full_name" size="sm" class="mr-2" />
-                                            <span>{{ referral.full_name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <Badge :label="referral.status" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div v-else class="space-y-3">
+                        <div v-for="referral in referralsList" 
+                            :key="referral.name" 
+                            class="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <Avatar :label="referral.full_name" size="sm" />
+                                <span class="font-medium">{{ referral.full_name }}</span>
+                            </div>
+                            <Badge :label="referral.status" />
+                        </div>
                     </div>
                 </div>
             </Card>
 
-            <!-- Recent Visits Section -->
+            <!-- Mobile Recent Visits View -->
             <Card>
-                <div class="space-y-4">
-                    <h2 class="text-lg font-medium mb-4">Recent Visits</h2>
+                <div class="p-4 space-y-4">
+                    <h2 class="text-lg font-medium">Recent Visits</h2>
                     <div v-if="recentVisits.length === 0" class="text-gray-500 text-center py-4">
                         No visits recorded
                     </div>
-                    <div v-else class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr v-for="visit in recentVisits" :key="visit.name" class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">{{ formatDate(visit.date) }}</td>
-                                    <td class="px-6 py-4">
-                                        <Badge 
-                                            :label="visit.type_event" 
-                                            :class="{
-                                                'bg-blue-100 text-blue-800': visit.type_event === 'Sport',
-                                                'bg-green-100 text-green-800': visit.type_event === 'Breakfast'
-                                            }"
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div v-else class="space-y-3">
+                        <div v-for="visit in recentVisits" 
+                            :key="visit.name" 
+                            class="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                            <span>{{ formatDate(visit.date) }}</span>
+                            <Badge 
+                                :label="visit.type_event" 
+                                :class="{
+                                    'bg-blue-100 text-blue-800': visit.type_event === 'Sport',
+                                    'bg-green-100 text-green-800': visit.type_event === 'Breakfast'
+                                }"
+                            />
+                        </div>
                     </div>
                 </div>
             </Card>

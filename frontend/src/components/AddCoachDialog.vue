@@ -7,22 +7,24 @@
                 {
                     label: 'Cancel',
                     variant: 'outline',
-                    onClick: () => showDialog = false
+                    onClick: () => showDialog = false,
+                    class: 'w-full sm:w-auto'
                 },
                 {
                     label: 'Add Coach',
                     variant: 'solid',
                     onClick: submitForm,
-                    disabled: !isFormValid
+                    disabled: !isFormValid,
+                    class: 'w-full sm:w-auto'
                 }
             ]
         }"
         v-model="showDialog"
     >
         <template #body-content>
-            <div class="space-y-4 p-4">
+            <div class="space-y-4 p-3 md:p-4">
                 <!-- Basic Info -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <FormControl
                         type="text"
                         label="First Name"
@@ -30,6 +32,7 @@
                         placeholder="John"
                         required
                         :error="errors.first_name"
+                        class="w-full"
                     />
                     <FormControl
                         type="text"
@@ -38,11 +41,12 @@
                         placeholder="Doe"
                         required
                         :error="errors.last_name"
+                        class="w-full"
                     />
                 </div>
 
                 <!-- ID and Level -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <FormControl
                         type="text"
                         label="ID Herbalife"
@@ -50,6 +54,7 @@
                         placeholder="123456789"
                         required
                         :error="errors.id_herbalife"
+                        class="w-full"
                     />
                     <FormControl
                         type="select"
@@ -58,11 +63,12 @@
                         :options="levelOptions"
                         required
                         :error="errors.level"
+                        class="w-full"
                     />
                 </div>
 
                 <!-- Contact Info -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <FormControl
                         type="email"
                         label="Email"
@@ -70,6 +76,7 @@
                         placeholder="coach@gmail.com"
                         required
                         :error="errors.email"
+                        class="w-full"
                     />
                     <FormControl
                         type="tel"
@@ -78,11 +85,12 @@
                         placeholder="0763 456 789"
                         required
                         :error="errors.phone_number"
+                        class="w-full"
                     />
                 </div>
 
                 <!-- Role and Sponsor -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <FormControl
                         type="select"
                         label="Role"
@@ -90,6 +98,7 @@
                         :options="roleOptions"
                         required
                         :error="errors.role"
+                        class="w-full"
                     />
                     <FormControl
                         type="autocomplete"
@@ -97,6 +106,7 @@
                         v-model="formData.sponsor"
                         :options="sponsorOptions"
                         placeholder="Select a sponsor"
+                        class="w-full"
                     />
                 </div>
             </div>

@@ -7,47 +7,50 @@
                 {
                     label: 'Cancel',
                     variant: 'outline',
-                    onClick: () => showDialog = false
+                    onClick: () => showDialog = false,
+                    class: 'w-full sm:w-auto'
                 },
                 {
                     label: 'Add Member',
                     variant: 'solid',
                     onClick: submitForm,
-                    disabled: !isFormValid
+                    disabled: !isFormValid,
+                    class: 'w-full sm:w-auto'
                 }
             ]
         }"
         v-model="showDialog"
     >
         <template #body-content>
-            <div class="space-y-4 p-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-2">
-                        <FormControl
-                            type="text"
-                            size="sm"
-                            variant="subtle"
-                            placeholder="John"
-                            label="First Name"
-                            v-model="formData.first_name"
-                            required
-                            :error="errors.first_name"
-                        />
-                    </div>
-                    <div class="p-2">
-                        <FormControl
-                            type="text"
-                            size="sm"
-                            variant="subtle"
-                            placeholder="Doe"
-                            label="Last Name"
-                            v-model="formData.last_name"
-                            required
-                            :error="errors.last_name"
-                        />
-                    </div>
+            <div class="space-y-4 p-2 md:p-4">
+                <!-- Basic Info -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    <FormControl
+                        type="text"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="John"
+                        label="First Name"
+                        v-model="formData.first_name"
+                        required
+                        :error="errors.first_name"
+                        class="w-full"
+                    />
+                    <FormControl
+                        type="text"
+                        size="sm"
+                        variant="subtle"
+                        placeholder="Doe"
+                        label="Last Name"
+                        v-model="formData.last_name"
+                        required
+                        :error="errors.last_name"
+                        class="w-full"
+                    />
                 </div>
-                <div class="p-2">
+
+                <!-- Coach and Source -->
+                <div class="space-y-3">
                     <FormControl
                         type="autocomplete"
                         :options="coachOptions"
@@ -58,43 +61,43 @@
                         v-model="formData.coach"
                         required
                         :error="errors.coach"
+                        class="w-full"
                     />
-                </div>
-                <div class="p-2">
                     <FormControl
                         type="select"
                         :options="sourceOptions"
                         size="sm"
                         variant="subtle"
-                        placeholder="Select the source" 
+                        placeholder="Select the source"
                         label="Source"
                         v-model="formData.source"
                         required
                         :error="errors.source"
+                        class="w-full"
                     />
                 </div>
-                <div class="p-2">
+
+                <!-- Additional Info -->
+                <div class="space-y-3">
                     <FormControl
-                        :type="'number'"
-                        :ref_for="true"
+                        type="number"
                         size="sm"
                         variant="subtle"
                         placeholder="Number of referrals"
-                        :disabled="false"
-                        label="Refferals"
+                        label="Referrals"
                         v-model="formData.referrals"
+                        class="w-full"
                     />
-                </div>
-                <div class="p-2" v-if="formData.source === 'Referral'">
                     <FormControl
+                        v-if="formData.source === 'Referral'"
                         type="autocomplete"
                         :options="memberOptions"
                         size="sm"
                         variant="subtle"
                         placeholder="Select the member"
-                        :disabled="false"
                         label="Referral of"
                         v-model="formData.referral_of"
+                        class="w-full"
                     />
                 </div>
             </div>

@@ -1,12 +1,12 @@
 <template>
     <div v-if="clubMemberList" class="bg-white rounded-lg shadow">
-        <!-- Add search bar -->
-        <div class="p-4 border-b border-gray-200">
-            <div class="flex items-center space-x-2">
-                <div class="w-full max-w-md">
+        <!-- Search bar -->
+        <div class="p-3 md:p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <div class="w-full">
                     <Input
                         type="text"
-                        placeholder="Search members by name..."
+                        placeholder="Search members..."
                         v-model="searchTerm"
                         :icon="searchTerm ? 'x' : 'search'"
                         @icon-click="clearSearch"
@@ -17,13 +17,46 @@
                     variant="solid"
                     label="Search"
                     icon="search"
+                    class="w-full sm:w-auto"
                     :loading="clubMemberResource.loading"
                     @click="performSearch"
                 />
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Mobile View -->
+        <div class="block sm:hidden">
+            <div class="divide-y divide-gray-200">
+                <div 
+                    v-for="member in clubMemberList" 
+                    :key="member.name" 
+                    class="p-4 hover:bg-gray-50"
+                    @click="navigateToDetails(member)"
+                >
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-3">
+                            <Avatar :label="member.full_name" size="md" />
+                            <div>
+                                <div class="font-medium text-gray-900">{{ member.full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ coachNameMap[member.coach] || 'No Coach' }}</div>
+                            </div>
+                        </div>
+                        <Badge :label="member.status" />
+                    </div>
+                    <div class="flex justify-end">
+                        <Button
+                            variant="danger"
+                            icon="trash-2"
+                            size="sm"
+                            @click.stop="deleteMember(member)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="hidden sm:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -69,30 +102,31 @@
                     </tr>
                 </tbody>
             </table>
-            <!-- Add pagination controls -->
-            <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
-                <div class="flex flex-1 justify-between items-center">
-                    <div class="text-sm text-gray-700">
-                        <!-- Page {{ clubMemberResource.currentPage }} of {{ Math.ceil(clubMemberResource.totalCount / clubMemberResource.pageLength) }} -->
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <Button 
-                            variant="outline" 
-                            size="sm"
-                            :disabled="!clubMemberResource?.hasPreviousPage"
-                            @click="clubMemberResource.previous()"
-                        >
-                            Previous
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            size="sm"
-                            :disabled="!clubMemberResource?.hasNextPage"
-                            @click="clubMemberResource.next()"
-                        >
-                            Next
-                        </Button>
-                    </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-2 md:px-4 md:py-3">
+            <div class="flex flex-1 justify-between items-center">
+                <div class="text-xs md:text-sm text-gray-700">
+                    <!-- Page info... -->
+                </div>
+                <div class="flex items-center space-x-2">
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        :disabled="!clubMemberResource?.hasPreviousPage"
+                        @click="clubMemberResource.previous()"
+                    >
+                        Previous
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        :disabled="!clubMemberResource?.hasNextPage"
+                        @click="clubMemberResource.next()"
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
         </div>
