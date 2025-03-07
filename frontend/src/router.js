@@ -62,6 +62,11 @@ const routes = [
     name:'ProfileClubPage',
     path:'/profile/club',
     component: () => import('@/pages/ProfileClubPage.vue'),
+  },
+  {
+    name:'ClubMemberAttentionPage',
+    path:'/members/expire',
+    component: () => import('@/pages/ClubMemberAttentionPage.vue'),
   }
 ]
 

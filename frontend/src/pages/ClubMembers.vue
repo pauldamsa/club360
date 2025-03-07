@@ -7,12 +7,20 @@
                     {{ memberCount }}
                 </span>
             </div>
-            <Button 
-                variant="solid" 
-                label="Add Member" 
-                class="w-full sm:w-auto"
-                @click="addMemberDialog.openDialog()"
-            />
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <Button 
+                    variant="outline" 
+                    label="To Be Inactive Members" 
+                    class="w-full sm:w-auto"
+                    @click="navigateToAttentionPage"
+                />
+                <Button 
+                    variant="solid" 
+                    label="Add Member" 
+                    class="w-full sm:w-auto"
+                    @click="addMemberDialog.openDialog()"
+                />
+            </div>
         </div>
 
         <ClubMemberTable ref="memberTable" />
@@ -24,12 +32,14 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue';
 import { createListResource } from 'frappe-ui';
+import { useRouter } from 'vue-router';
 import ClubMemberTable from '@/components/ClubMemberTable.vue';
 import AddMemberDialog from '@/components/AddMemberDialog.vue';
 import { session } from '@/data/session';
 
+const router = useRouter();
 const memberTable = ref(null);
 const addMemberDialog = ref(null);
 
@@ -68,6 +78,11 @@ function handleMemberAdded() {
             }
         });
     }
+}
+
+function navigateToAttentionPage() {
+    // Simple direct navigation to the correct path
+    window.location.href = '/members/expire';
 }
 
 </script>
