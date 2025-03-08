@@ -248,6 +248,9 @@ import { ref, computed, watch } from 'vue';
 import { createListResource, Card, Badge, createDocumentResource } from 'frappe-ui';
 import { session } from '@/data/session';
 
+
+
+
 // Get list of coaches first
 const coachListResource = createListResource({
     doctype: 'Coach',
@@ -309,7 +312,7 @@ function fetchMemberDetails(memberId) {
     });
     
     // Fetch the data
-    memberResource.submit();
+    memberResource.reload();
 }
 
 // Modified helper function to calculate required servings for a coach
