@@ -227,4 +227,10 @@ onMounted(() => {
 onUnmounted(() => {
     window.removeEventListener('resize', checkScreenSize);
 });
+
+function navigateToStockPage() {
+    // Simple direct navigation to the correct path
+    window.location.href = '/stock';
+}
+
 </script>
