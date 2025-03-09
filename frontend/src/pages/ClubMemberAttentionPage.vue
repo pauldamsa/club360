@@ -179,7 +179,7 @@ const membersResource = createListResource({
             const totalMembers = data.length;
             
             // Set a timeout in case fetches take too long
-            startLoadingTimeout();
+            // startLoadingTimeout();
             
             // Fetch detailed data for each member
             data.forEach(member => {

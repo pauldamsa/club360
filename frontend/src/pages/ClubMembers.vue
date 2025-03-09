@@ -81,8 +81,10 @@ function handleMemberAdded() {
 }
 
 function navigateToAttentionPage() {
-    // Simple direct navigation to the correct path
-    window.location.href = '/members/expire';
+    // Use router.push with a timestamp to force a refresh
+    router.push({
+        path: '/members/expire'
+    });
 }
 
 </script>
