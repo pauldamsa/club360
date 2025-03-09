@@ -178,6 +178,8 @@ const coachesResource = createListResource({
     filters :{
         owner: session.user
     },
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
     auto: true
 });
 

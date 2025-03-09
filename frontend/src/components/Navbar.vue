@@ -5,7 +5,7 @@
                 <!-- Left side - Logo -->
                 <div class="flex items-center">
                     <router-link to="/" class="flex items-center space-x-2">
-                        <img src="/club360logo.png" alt="Club 360 Logo" class="h-10 w-auto" />
+                        <!-- <img src="/club360logo.png" alt="Club 360 Logo" class="h-10 w-auto" /> -->
                         <span class="text-xl font-bold text-gray-900 hover:text-gray-700">Club360</span>
                     </router-link>
                 </div>

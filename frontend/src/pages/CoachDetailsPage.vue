@@ -48,26 +48,28 @@
                         <h2 class="text-lg font-medium">Club Members</h2>
                         <Badge :label="clubMembers.length" variant="outline" class="bg-red-100 text-red-800" size="lg" />
                     </div>
-                    <!-- Mobile View -->
-                    <div class="block sm:hidden space-y-3">
-                        <div v-for="member in clubMembers" 
-                             :key="member.name" 
-                             class="border rounded-lg p-3"
-                        >
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <Avatar :label="member.full_name" size="sm" />
-                                    <div>
-                                        <div class="font-medium">{{ member.full_name }}</div>
-                                        <div class="text-sm text-gray-500">{{ member.source }}</div>
+                    <!-- Mobile View - with scrolling -->
+                    <div class="block sm:hidden">
+                        <div class="overflow-y-auto max-h-80 pr-2 space-y-3">
+                            <div v-for="member in clubMembers" 
+                                :key="member.name" 
+                                class="border rounded-lg p-3"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <Avatar :label="member.full_name" size="sm" />
+                                        <div>
+                                            <div class="font-medium">{{ member.full_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ member.source }}</div>
+                                        </div>
                                     </div>
+                                    <Badge :label="member.status" />
                                 </div>
-                                <Badge :label="member.status" />
                             </div>
                         </div>
                     </div>
-                    <!-- Desktop View -->
-                    <div class="hidden sm:block">
+                    <!-- Desktop View - with scrolling -->
+                    <div class="hidden sm:block overflow-y-auto max-h-96">
                         <table class="min-w-full">
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-for="member in clubMembers" :key="member.name" class="hover:bg-gray-50">

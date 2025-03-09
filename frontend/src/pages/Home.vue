@@ -215,6 +215,7 @@ const allVisitsResource = createListResource({
         owner: session.user,
         date: ['>=', new Date().toISOString().split('T')[0]] 
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 
@@ -251,6 +252,7 @@ const activeMembersResource = createListResource({
         owner: session.user,
         status: 'Active'
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 
@@ -266,6 +268,7 @@ const referralsResource = createListResource({
         owner: session.user,
         source: 'Referral'
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 
@@ -282,6 +285,7 @@ const newReferralsResource = createListResource({
         source: 'Referral',
         creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 
@@ -297,6 +301,7 @@ const newMembersResource = createListResource({
         owner: session.user,
         creation: ['>=', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]]
     },
+    pageLength: 99999, // Set a large number to get all records
     auto: true
 });
 

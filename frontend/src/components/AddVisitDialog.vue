@@ -88,22 +88,30 @@ const typeOptions = [
     { label: 'Breakfast', value: 'Breakfast' }
 ];
 
-// Get club members for autocomplete with name field
+// Updated members resource to include all records
 const membersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'],
     filters: {
-        owner: session.user
+        owner: session.user,
+        status: 'Active' // Only show active members
     },
-    auto: true
+    pageLength: 9999, // Increase page length to get all records
+    auto: true,
+    limit: 0 // No limit on the number of records
 });
 
-// Update member options to use name as value
+// Add loading state for better UX
+const isLoadingMembers = computed(() => membersResource.loading);
+
+// Update member options to show loading state and use all records
 const memberOptions = computed(() => {
-    if (!membersResource.list.data) return [];
+    if (isLoadingMembers.value) return [{ label: 'Loading members...', value: '' }];
+    if (!membersResource.list.data || membersResource.list.data.length === 0) return [];
+    
     return membersResource.list.data.map(member => ({
         label: member.full_name,
-        value: member.name  // Use name as value
+        value: member.name
     }));
 });
 

@@ -172,13 +172,15 @@ const sourceOptions = [
     { label: 'Roadshow', value: 'Roadshow' },
 ];
 
-// Update club members resource to include name field
+// Update club members resource to include all records
 const clubMembersResource = createListResource({
     doctype: 'Club Member',
     fields: ['name', 'full_name'], // Added name field for ID
     filters: {
         owner: session.user
     },
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
     auto: true,
 });
 

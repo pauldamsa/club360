@@ -393,6 +393,9 @@ const clubMemberResource = createDocumentResource({
     doctype: 'Club Member',
     name: route.params.id_club_member,
     fields: ['*'],
+    filters: {
+        owner: session.user
+    },
     auto: true,
 })
 
