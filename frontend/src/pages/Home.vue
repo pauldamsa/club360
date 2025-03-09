@@ -150,19 +150,11 @@ const membersResource = createListResource({
     filters: {
         owner: session.user
     },
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
     auto: true
 });
 
-// Create mapping for member names
-const memberNames = computed(() => {
-    const mapping = {};
-    if (membersResource.list.data) {
-        membersResource.list.data.forEach(member => {
-            mapping[member.name] = member.full_name;
-        });
-    }
-    return mapping;
-});
 
 const visitsResource = createListResource({
     doctype: 'Visit',
@@ -171,8 +163,33 @@ const visitsResource = createListResource({
         owner: session.user,
         date: ['>=', new Date().toISOString().split('T')[0]]
     },
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
     orderBy: 'date desc',
     auto: true
+});
+
+// Add detailed members resource to get full names
+const membersDetailsResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user
+    },
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
+    auto: true
+});
+
+// Create mapping for member names
+const memberNames = computed(() => {
+    const mapping = {};
+    if (membersDetailsResource.list.data) {
+        membersDetailsResource.list.data.forEach(member => {
+            mapping[member.name] = member.full_name;
+        });
+    }
+    return mapping;
 });
 
 const todayVisits = computed(() => visitsResource.list.data || []);
@@ -199,7 +216,9 @@ function handleMemberAdded() {
 const coachesResource = createListResource({
     doctype: 'Coach',
     fields: ['name', 'full_name'],
-    auto: true
+    auto: true,
+    pageLength: 9999, // Increase page length to get all records
+    limit: 0, // No limit on the number of records
 });
 
 function handleCoachAdded() {
