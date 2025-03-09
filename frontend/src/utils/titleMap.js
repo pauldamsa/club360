@@ -7,5 +7,9 @@ export const titleMap = {
   'Visits': 'Visits | Club 360',
   'Statistics': 'Statistics | Club 360',
   'NetworkReport': 'Network Report | Club 360',  // Updated to match route name
+  'ProfileClub': 'Club Profile | Club 360',  // Updated to match route name
+  'Stock': 'Stock | Club 360',
+  'Planner': 'Planner | Club 360',
+  'ClubMemberAttentionPage': 'Member Attention | Club 360',  // Updated to match route name
   'default': 'Club 360'
 };
