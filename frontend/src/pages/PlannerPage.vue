@@ -186,12 +186,42 @@ const coachesResource = createListResource({
     auto: true
 });
 
+// Get trainees for dropdown
+const traineesResource = createListResource({
+    doctype: 'Club Member',
+    fields: ['name', 'full_name'],
+    filters: {
+        owner: session.user,
+        type: 'Trainee'
+    },
+    auto: true
+});
+
+// Combined coaches and trainees for dropdown options
 const coachOptions = computed(() => {
-    if (!coachesResource.list.data) return [];
-    return coachesResource.list.data.map(coach => ({
-        label: coach.full_name,
-        value: coach.full_name
-    }));
+    const options = [];
+    
+    // Add coaches
+    if (coachesResource.list.data) {
+        coachesResource.list.data.forEach(coach => {
+            options.push({
+                label: `${coach.full_name} (Coach)`,
+                value: coach.full_name
+            });
+        });
+    }
+    
+    // Add trainees
+    if (traineesResource.list.data) {
+        traineesResource.list.data.forEach(trainee => {
+            options.push({
+                label: `${trainee.full_name} (Trainee)`,
+                value: trainee.full_name
+            });
+        });
+    }
+    
+    return options;
 });
 
 const flavours = [
